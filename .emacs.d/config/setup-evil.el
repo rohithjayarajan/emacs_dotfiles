@@ -1,5 +1,3 @@
-;;; -*- lexical-binding: t -*-
-
 (use-package evil
   :ensure t
   :defer .1 ;; don't block emacs when starting, load evil immediately after startup
@@ -21,3 +19,5 @@
   :config
   (evil-collection-init))
 (message "Loading evil-mode...done"))
+
+(provide 'setup-evil)

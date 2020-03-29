@@ -1,5 +1,3 @@
-;;; -*- lexical-binding: t -*-
-
 (require 'evil-states)
 (require 'evil-ex)
 (require 'evil-commands)
@@ -42,4 +40,5 @@
 (define-key evil-replace-state-map (kbd "kk") 'evil-normal-state)
 (define-key evil-visual-state-map (kbd "kk") 'evil-exit-visual-state)
 
+(provide 'setup-evilrc)
 
