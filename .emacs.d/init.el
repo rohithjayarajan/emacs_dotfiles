@@ -27,6 +27,7 @@
 (require 'setup-evilrc)
 (require 'setup-fonts)
 (require 'setup-themes)
+(require 'setup-keybindings)
 
 ;;;end config
 
