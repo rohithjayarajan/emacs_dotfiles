@@ -24,6 +24,7 @@
 (require 'setup-cedet)
 (require 'setup-python)
 (require 'setup-editing)
+(require 'setup-editor)
 (require 'setup-evil)
 (require 'setup-evilrc)
 (require 'setup-fonts)
