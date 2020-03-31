@@ -43,24 +43,24 @@
 (key-chord-define evil-insert-state-map (kbd "kk") 'evil-normal-state)
 
 ;;line above
-(defun rj/new-line-above ()
-  "Create new line above."
-  (interactive)
-  (evil-open-above)
-  (evil-normal-state)
-  (evil-next-line))
+;(defun rj/new-line-above ()
+;  "Create new line above."
+;  (interactive)
+;  (evil-open-above)
+;  (evil-normal-state)
+;  (evil-next-line))
 
-(key-chord-define evil-normal-state-map (kbd "kc") 'rj/new-line-above)
+;(key-chord-define evil-normal-state-map (kbd "kc") 'rj/new-line-above)
 
 ;;line below
-(defun rj/new-line-below ()
-  "Create new line below."
-  (interactive)
-  (evil-open-below)
-  (evil-normal-state)
-  (evil-previous-line))
+;(defun rj/new-line-below ()
+;  "Create new line below."
+;  (interactive)
+;  (evil-open-below)
+;  (evil-normal-state)
+;  (evil-previous-line))
 
-(key-chord-define evil-normal-state-map (kbd "kt") 'rj/new-line-below)
+;(key-chord-define evil-normal-state-map (kbd "tt") 'rj/new-line-below)
 
 (provide 'setup-evilrc)
 

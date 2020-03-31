@@ -22,6 +22,7 @@
   (require 'setup-helm-gtags))
 ;; (require 'setup-ggtags)
 (require 'setup-cedet)
+(require 'setup-python)
 (require 'setup-editing)
 (require 'setup-evil)
 (require 'setup-evilrc)

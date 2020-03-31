@@ -20,6 +20,19 @@
       hscroll-step 1                    ; small step of scroll
       scroll-preserve-screen-position t) ; try to keep cursor in its position
 
+(global-linum-mode t)
+
+(when window-system (global-hl-line-mode t))
+(when window-system (global-prettify-symbols-mode t))
+
+(use-package beacon
+  :ensure t
+  :init
+  (beacon-mode 1))
+
+(setq make-backup-file nil)
+(setq auto-save-default nil)
+
 (winner-mode t)
 
 (desktop-save-mode t)
@@ -89,5 +102,9 @@
 ;; activate whitespace-mode to view all whitespace characters
 (global-set-key (kbd "C-c w") 'whitespace-mode)
 (windmove-default-keybindings)
+
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
 
 (provide 'setup-general)
