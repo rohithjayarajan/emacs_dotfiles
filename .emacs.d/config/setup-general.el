@@ -25,6 +25,11 @@
 (desktop-save-mode t)
 (save-place-mode t)
 
+(use-package which-key
+  :ensure t
+  :init
+  (which-key-mode))
+
 ;; Security
 (setq gnutls-verify-error t
       tls-checktrust t)

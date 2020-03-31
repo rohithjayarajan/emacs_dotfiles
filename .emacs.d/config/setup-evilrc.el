@@ -4,6 +4,11 @@
 (require 'evil-command-window)
 (require 'evil-common)
 
+(use-package key-chord
+  :ensure t)
+(require 'key-chord)
+(key-chord-mode 1)
+
 ;; window commands
 (define-prefix-command 'evil-window-map)
 (define-key evil-window-map (kbd "j") 'evil-window-delete)
@@ -35,10 +40,27 @@
 (define-key evil-motion-state-map (kbd "SPC") 'evil-ex)
 
 ;;map kk to escape
-(define-key evil-normal-state-map (kbd "kk") 'evil-force-normal-state)
-(define-key evil-insert-state-map (kbd "kk") 'evil-normal-state)
-(define-key evil-replace-state-map (kbd "kk") 'evil-normal-state)
-(define-key evil-visual-state-map (kbd "kk") 'evil-exit-visual-state)
+(key-chord-define evil-insert-state-map (kbd "kk") 'evil-normal-state)
+
+;;line above
+(defun rj/new-line-above ()
+  "Create new line above."
+  (interactive)
+  (evil-open-above)
+  (evil-normal-state)
+  (evil-next-line))
+
+(key-chord-define evil-normal-state-map (kbd "kc") 'rj/new-line-above)
+
+;;line below
+(defun rj/new-line-below ()
+  "Create new line below."
+  (interactive)
+  (evil-open-below)
+  (evil-normal-state)
+  (evil-previous-line))
+
+(key-chord-define evil-normal-state-map (kbd "kt") 'rj/new-line-below)
 
 (provide 'setup-evilrc)
 
