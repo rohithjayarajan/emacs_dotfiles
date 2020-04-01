@@ -30,7 +30,7 @@
 (require 'setup-fonts)
 (require 'setup-themes)
 (require 'setup-keybindings)
+(require 'setup-terminal)
 
 ;;;end config
-
 

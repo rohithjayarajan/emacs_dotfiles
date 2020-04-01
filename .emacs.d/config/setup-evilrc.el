@@ -40,7 +40,7 @@
 (define-key evil-motion-state-map (kbd "SPC") 'evil-ex)
 
 ;;map kk to escape
-(key-chord-define evil-insert-state-map (kbd "kk") 'evil-normal-state)
+(key-chord-define evil-insert-state-map (kbd "hh") 'evil-normal-state)
 
 ;;line above
 ;(defun rj/new-line-above ()

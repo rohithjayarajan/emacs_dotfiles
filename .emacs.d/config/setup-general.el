@@ -30,7 +30,7 @@
   :init
   (beacon-mode 1))
 
-(setq make-backup-file nil)
+(setq make-backup-files nil)
 (setq auto-save-default nil)
 
 (winner-mode t)

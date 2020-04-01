@@ -15,6 +15,9 @@
 
 (setq sr-speedbar-width 10)
 
+(custom-set-variables
+ '(speedbar-show-unknown-files t))
+
 (add-hook 'emacs-startup-hook (lambda ()
   (sr-speedbar-open)))
 
