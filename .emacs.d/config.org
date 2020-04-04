@@ -1,0 +1,259 @@
+* Visual
+** Themes
+Current favorite theme solarized-dark-high-contrast
+#+BEGIN_SRC emacs-lisp
+  (use-package solarized-theme
+    :ensure t
+    :init (load-theme 'solarized-dark-high-contrast t))
+#+END_SRC
+
+** Font
+#+BEGIN_SRC emacs-lisp
+  (set-frame-font "DejaVu Sans Mono-16" t t)
+#+END_SRC
+
+** Startup Screen
+Inhibit startup message
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-startup-message t)
+#+END_SRC
+
+** Set UTF-8 encoding
+#+BEGIN_SRC emacs-lisp
+  (setq locale-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+#+END_SRC
+
+** Pretty symbols
+#+BEGIN_SRC emacs-lisp
+  (when window-system
+	(use-package pretty-mode
+	:ensure t
+	:config
+	(global-pretty-mode t)))
+#+END_SRC
+
+* Keybindings
+** C- keybinds
+Swap “C-t” and “C-x”Z
+#+BEGIN_SRC emacs-lisp
+  (keyboard-translate ?\C-t ?\C-x)
+  (keyboard-translate ?\C-x ?\C-t)
+#+END_SRC
+
+* Vim
+** Evil
+Download Evil
+#+BEGIN_SRC emacs-lisp
+  (unless (package-installed-p 'evil)
+    (package-install 'evil))
+#+END_SRC
+Enable Evil
+#+BEGIN_SRC emacs-lisp
+  (require 'evil)
+  (evil-mode 1)
+#+END_SRC
+** Vimrc
+Requirements
+#+BEGIN_SRC emacs-lisp
+  (require 'evil-states)
+  (require 'evil-ex)
+  (require 'evil-commands)
+  (require 'evil-command-window)
+  (require 'evil-common)
+#+END_SRC
+
+Window commands
+#+BEGIN_SRC emacs-lisp
+  (define-prefix-command 'evil-window-map)
+  (define-key evil-window-map (kbd "j") 'evil-window-delete)
+  (define-key evil-window-map (kbd "t") 'evil-window-down)
+  (define-key evil-window-map (kbd "T") 'evil-window-move-very-bottom)
+  (define-key evil-window-map (kbd "c") 'evil-window-up)
+  (define-key evil-window-map (kbd "C") 'evil-window-move-very-top)
+  (define-key evil-window-map (kbd "n") 'evil-window-right)
+  (define-key evil-window-map (kbd "n") 'evil-window-move-far-right)
+  (define-key evil-window-map (kbd "k") 'evil-window-new)
+  (define-key evil-window-map (kbd "l") 'evil-window-top-left)
+#+END_SRC
+
+Motion state commands
+#+BEGIN_SRC emacs-lisp
+  (define-key evil-motion-state-map (kbd "t") 'evil-next-line)
+  (define-key evil-motion-state-map (kbd "c") 'evil-previous-line)
+  (define-key evil-motion-state-map (kbd "n") 'evil-forward-char)
+  (define-key evil-motion-state-map (kbd "k") 'evil-search-next)
+  (define-key evil-motion-state-map (kbd "K") 'evil-search-previous)
+  (define-key evil-motion-state-map (kbd "j") 'evil-find-char-to)
+  (define-key evil-motion-state-map (kbd "J") 'evil-find-char-to-backward)
+#+END_SRC
+
+Normal state commands
+#+BEGIN_SRC emacs-lisp
+  (define-key evil-normal-state-map (kbd "t") 'evil-next-line)
+  (define-key evil-normal-state-map (kbd "c") 'evil-previous-line)
+  (define-key evil-normal-state-map (kbd "n") 'evil-forward-char)
+#+END_SRC
+
+Ex
+#+BEGIN_SRC emacs-lisp
+  (define-key evil-motion-state-map (kbd "SPC") 'evil-ex)
+#+END_SRC
+
+Use key-chord
+#+BEGIN_SRC emacs-lisp
+  (use-package key-chord
+    :ensure t)
+  (require 'key-chord)
+  (key-chord-mode 1)
+#+END_SRC
+
+Map hh to escape
+#+BEGIN_SRC emacs-lisp
+  (key-chord-define evil-insert-state-map (kbd "hh") 'evil-normal-state)
+#+END_SRC
+
+* General
+** GUI
+Disable beeping, gui popups. Echo faster keystrokes, kill process, enable all commands 
+#+BEGIN_SRC emacs-lisp
+  (setq ring-bell-function 'ignore        ; disable beeping
+	x-gtk-use-system-tooltips nil     ; disable gui popups
+	use-dialog-box nil                ; disable gui popups
+	echo-keystrokes 0.5               ; echo keystrokes faster
+	confirm-kill-processes nil        ; kill the process
+	disabled-command-function nil)    ; enable all commands
+#+END_SRC
+
+Hide gui funcionalities
+#+BEGIN_SRC emacs-lisp
+  (menu-bar-mode -1)                      ; hide menu-bar
+  (tool-bar-mode -1)                      ; hide tool-bar
+  (scroll-bar-mode -1)                    ; hide scroll-bar
+  (blink-cursor-mode 0)                   ; disable blinking
+  (show-paren-mode t)                     ; enable matching paren highlight
+  (column-number-mode t)                  ; enable column numbers
+#+END_SRC
+
+Scroll settings
+#+BEGIN_SRC emacs-lisp
+  (setq mouse-wheel-scroll-amount '(1)     ; gentle scrolling
+	mouse-wheel-progressive-speed nil  ; disable acceleration
+	scroll-conservatively 101          ; disable jump to the middle of screen
+	hscroll-margin 1                   ; disable early scroll
+	hscroll-step 1                     ; small step of scroll
+	scroll-preserve-screen-position t) ; try to keep cursor in its position
+#+END_SRC
+
+Line numbers
+#+BEGIN_SRC emacs-lisp
+  (global-linum-mode t)
+  (when window-system (global-hl-line-mode t))
+#+END_SRC
+
+Highlight lines
+#+BEGIN_SRC emacs-lisp
+  (use-package beacon
+    :ensure t
+    :init
+    (beacon-mode 1))
+#+END_SRC
+
+Simplify yes or no
+#+BEGIN_SRC emacs-lisp
+  (defalias 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+
+** Files
+Don't create backups/autosaves
+#+BEGIN_SRC emacs-lisp
+  (setq make-backup-files nil)
+  (setq auto-save-default nil)
+#+END_SRC
+
+** Options
+Winner mode
+#+BEGIN_SRC emacs-lisp
+  (winner-mode t)
+#+END_SRC
+
+Save options
+#+BEGIN_SRC emacs-lisp
+  (desktop-save-mode t)
+  (save-place-mode t)
+#+END_SRC
+
+** Which key
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :ensure t
+    :init
+    (which-key-mode))
+#+END_SRC
+
+** Security
+#+BEGIN_SRC emacs-lisp
+  (setq gnutls-verify-error t
+	tls-checktrust t)
+#+END_SRC
+
+** Enable async processes
+#+BEGIN_SRC emacs-lisp
+  (use-package async
+    :ensure t
+    :init (dired-async-mode 1))
+#+END_SRC
+
+** Show unnecessary whitespaces
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'prog-mode-hook
+	    (lambda () (interactive)
+	      (setq show-trailing-whitespace 1)))
+#+END_SRC
+
+** Set tab width to 4
+#+BEGIN_SRC emacs-lisp
+  (setq-default tab-width 4)
+#+END_SRC
+
+* Editor
+** Speedbar
+Use speedbar
+#+BEGIN_SRC emacs-lisp
+  (use-package speedbar)
+  
+  (use-package sr-speedbar
+    :ensure t
+    :init
+    (set-variable 'sr-speedbar-right-side nil))
+
+  (use-package projectile-speedbar
+    :ensure t
+    :disabled t)
+
+  (make-face 'speedbar-face)
+  (set-face-font 'speedbar-face "Mono-12")
+  (setq speedbar-mode-hook '(lambda () (buffer-face-set 'speedbar-face)))
+
+  (setq sr-speedbar-width 10)
+
+  (custom-set-variables
+   '(speedbar-show-unknown-files t))
+
+  (add-hook 'emacs-startup-hook (lambda ()
+    (sr-speedbar-open)))
+#+END_SRC
+
+* Terminal
+** Set default terminal
+#+BEGIN_SRC emacs-lisp
+(defvar rj/terminal-shell "/bin/bash")
+(defadvice ansi-term (before force-bash)
+  (interactive (list rj/terminal-shell)))
+(ad-activate 'ansi-term)
+(global-set-key (kbd "<s-return>") 'ansi-term)
+#+END_SRC
+
