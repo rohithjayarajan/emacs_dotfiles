@@ -10,6 +10,7 @@ Current favorite theme solarized-dark-high-contrast
 ** Font
 #+BEGIN_SRC emacs-lisp
   (set-frame-font "DejaVu Sans Mono-16" t t)
+  (set-fontset-font t 'unicode "STIXGeneral" nil 'prepend)
 #+END_SRC
 
 ** Startup Screen
@@ -29,20 +30,40 @@ Inhibit startup message
 
 ** Pretty symbols
 #+BEGIN_SRC emacs-lisp
-  (when window-system
-	(use-package pretty-mode
-	:ensure t
-	:config
-	(global-pretty-mode t)))
+  (setq prettify-symbols-unprettify-at-point 'right-edge)
+	(global-prettify-symbols-mode 0)
+
+	(add-hook
+	 'python-mode-hook
+	 (lambda ()
+	   (mapc (lambda (pair) (push pair prettify-symbols-alist))
+			 '(("def" . "𝒇")
+			   ("class" . "𝑪")
+			   ("and" . "∧")
+			   ("or" . "∨")
+			   ("not" . "￢")
+			   ("in" . "∈")
+			   ("not in" . "∉")
+			   ("return" . "⟼")
+			   ("yield" . "⟻")
+			   ("for" . "∀")
+			   ("!=" . "≠")
+			   ("==" . "＝")
+			   (">=" . "≥")
+			   ("<=" . "≤")
+			   ("[]" . "⃞")
+			   ("=" . "≝")))))
 #+END_SRC
+
 
 * Keybindings
 ** C- keybinds
-Swap “C-t” and “C-x”Z
+Swap “C-t” and “C-x”
 #+BEGIN_SRC emacs-lisp
   (keyboard-translate ?\C-t ?\C-x)
   (keyboard-translate ?\C-x ?\C-t)
 #+END_SRC
+
 
 * Vim
 ** Evil
@@ -51,11 +72,13 @@ Download Evil
   (unless (package-installed-p 'evil)
     (package-install 'evil))
 #+END_SRC
+
 Enable Evil
 #+BEGIN_SRC emacs-lisp
   (require 'evil)
   (evil-mode 1)
 #+END_SRC
+
 ** Vimrc
 Requirements
 #+BEGIN_SRC emacs-lisp
@@ -116,6 +139,7 @@ Map hh to escape
   (key-chord-define evil-insert-state-map (kbd "hh") 'evil-normal-state)
 #+END_SRC
 
+
 * General
 ** GUI
 Disable beeping, gui popups. Echo faster keystrokes, kill process, enable all commands 
@@ -151,7 +175,7 @@ Scroll settings
 Line numbers
 #+BEGIN_SRC emacs-lisp
   (global-linum-mode t)
-  (when window-system (global-hl-line-mode t))
+  (when window-system (add-hook 'prog-mode-hook 'hl-line-mode))
 #+END_SRC
 
 Highlight lines
@@ -168,10 +192,15 @@ Simplify yes or no
 #+END_SRC
 
 ** Files
-Don't create backups/autosaves
+Create centralised backups
 #+BEGIN_SRC emacs-lisp
-  (setq make-backup-files nil)
-  (setq auto-save-default nil)
+  (setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+	  backup-by-copying t    ; Don't delink hardlinks
+	  version-control t      ; Use version numbers on backups
+	  delete-old-versions t  ; Automatically delete excess backups
+	  kept-new-versions 20   ; how many of the newest versions to keep
+	  kept-old-versions 5    ; and how many of the old
+	  )
 #+END_SRC
 
 ** Options
@@ -214,10 +243,6 @@ Save options
 	      (setq show-trailing-whitespace 1)))
 #+END_SRC
 
-** Set tab width to 4
-#+BEGIN_SRC emacs-lisp
-  (setq-default tab-width 4)
-#+END_SRC
 
 * Editor
 ** Speedbar
@@ -247,6 +272,7 @@ Use speedbar
     (sr-speedbar-open)))
 #+END_SRC
 
+
 * Terminal
 ** Set default terminal
 #+BEGIN_SRC emacs-lisp
@@ -256,4 +282,522 @@ Use speedbar
 (ad-activate 'ansi-term)
 (global-set-key (kbd "<s-return>") 'ansi-term)
 #+END_SRC
+
+
+* Editing
+** Basics
+#+BEGIN_SRC emacs-lisp
+  (setq global-mark-ring-max 5000         ; increase mark ring to contains 5000 entries
+		mark-ring-max 5000                ; increase kill ring to contains 5000 entries
+		mode-require-final-newline t      ; add a newline to end of file
+		tab-width 4                       ; default to 4 visible spaces to display a tab
+		)
+
+  (add-hook 'sh-mode-hook (lambda ()
+							(setq tab-width 4)))
+
+  (setq-default indent-tabs-mode nil)
+  (delete-selection-mode)
+  (global-set-key (kbd "RET") 'newline-and-indent)
+#+END_SRC
+
+** Killing
+#+BEGIN_SRC emacs-lisp
+  (setq kill-ring-max 5000 ; increase kill-ring capacity
+		kill-whole-line t  ; if NIL, kill whole line and move the next line up
+		)
+#+END_SRC
+
+** Show whitespace in diff-mode
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'diff-mode-hook (lambda ()
+                              (setq-local whitespace-style
+                                          '(face
+                                            tabs
+                                            tab-mark
+                                            spaces
+                                            space-mark
+                                            trailing
+                                            indentation::space
+                                            indentation::tab
+                                            newline
+                                            newline-mark))
+                              (whitespace-mode 1)))
+#+END_SRC
+
+** Volatile Highlights
+#+BEGIN_SRC emacs-lisp
+  (use-package volatile-highlights
+	:init
+	(volatile-highlights-mode t))
+#+END_SRC
+
+** Undo Tree
+#+BEGIN_SRC emacs-lisp
+  (use-package undo-tree
+	  :ensure t
+	  :chords (("UU" . undo-tree-visualize))
+	  :diminish undo-tree-mode:
+	  :config
+	  (global-undo-tree-mode 1))
+#+END_SRC
+
+** Clean auto-indent and backspace unindent
+#+BEGIN_SRC emacs-lisp
+  (use-package clean-aindent-mode
+	:init
+	(add-hook 'prog-mode-hook 'clean-aindent-mode))
+#+END_SRC
+
+** Guess indentation offset originally used for creating source code files
+#+BEGIN_SRC emacs-lisp
+  (use-package dtrt-indent
+	:init
+	(dtrt-indent-mode 1)
+	(setq dtrt-indent-verbosity 0))
+#+END_SRC
+
+** Trim spaces from eol
+#+BEGIN_SRC emacs-lisp
+  (use-package ws-butler
+	:init
+	(add-hook 'prog-mode-hook 'ws-butler-mode)
+	(add-hook 'text-mode 'ws-butler-mode)
+	(add-hook 'fundamental-mode 'ws-butler-mode))
+#+END_SRC
+
+** Comments
+#+BEGIN_SRC emacs-lisp
+(use-package comment-dwim-2
+  :bind (("M-;" . comment-dwim-2))
+  )
+#+END_SRC
+
+** Anzu
+#+BEGIN_SRC emacs-lisp
+  (use-package anzu
+	:init
+	(global-anzu-mode)
+	(global-set-key (kbd "M-%") 'anzu-query-replace)
+	(global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp))
+#+END_SRC
+
+** Edit multiple places simultaneously
+#+BEGIN_SRC emacs-lisp
+  (use-package iedit
+	:bind (("C-;" . iedit-mode))
+	:init
+	(setq iedit-toggle-key-default nil))
+#+END_SRC
+
+** Automatically indent yanked text
+#+BEGIN_SRC emacs-lisp
+  (defvar yank-indent-modes
+	'(LaTeX-mode TeX-mode)
+	"Modes in which to indent regions that are yanked (or yank-popped).
+  Only modes that don't derive from `prog-mode' should be listed here.")
+
+  (defvar yank-indent-blacklisted-modes
+	'(python-mode slim-mode haml-mode)
+	"Modes for which auto-indenting is suppressed.")
+
+  (defvar yank-advised-indent-threshold 1000
+	"Threshold (# chars) over which indentation does not automatically occur.")
+
+  (defun yank-advised-indent-function (beg end)
+	"Do indentation, as long as the region isn't too large."
+	(if (<= (- end beg) yank-advised-indent-threshold)
+		(indent-region beg end nil)))
+
+  (defadvice yank (after yank-indent activate)
+	"If current mode is one of 'yank-indent-modes,
+  indent yanked text (with prefix arg don't indent)."
+	(if (and (not (ad-get-arg 0))
+			 (not (member major-mode yank-indent-blacklisted-modes))
+			 (or (derived-mode-p 'prog-mode)
+				 (member major-mode yank-indent-modes)))
+		(let ((transient-mark-mode nil))
+		  (yank-advised-indent-function (region-beginning) (region-end)))))
+
+  (defadvice yank-pop (after yank-pop-indent activate)
+	"If current mode is one of `yank-indent-modes',
+  indent yanked text (with prefix arg don't indent)."
+	(when (and (not (ad-get-arg 0))
+			   (not (member major-mode yank-indent-blacklisted-modes))
+			   (or (derived-mode-p 'prog-mode)
+				   (member major-mode yank-indent-modes)))
+	  (let ((transient-mark-mode nil))
+		(yank-advised-indent-function (region-beginning) (region-end)))))
+#+END_SRC
+
+** More indenting
+#+BEGIN_SRC emacs-lisp
+  ;; prelude-core.el
+  (defun indent-buffer ()
+	"Indent the currently visited buffer."
+	(interactive)
+	(indent-region (point-min) (point-max)))
+
+  ;; prelude-editing.el
+  (defcustom prelude-indent-sensitive-modes
+	'(coffee-mode python-mode slim-mode haml-mode yaml-mode)
+	"Modes for which auto-indenting is suppressed."
+	:type 'list)
+
+  (defun indent-region-or-buffer ()
+	"Indent a region if selected, otherwise the whole buffer."
+	(interactive)
+	(unless (member major-mode prelude-indent-sensitive-modes)
+	  (save-excursion
+		(if (region-active-p)
+			(progn
+			  (indent-region (region-beginning) (region-end))
+			  (message "Indented selected region."))
+		  (progn
+			(indent-buffer)
+			(message "Indented buffer.")))
+		(whitespace-cleanup))))
+
+
+  (global-set-key (kbd "C-c i") 'indent-region-or-buffer)
+#+END_SRC
+
+
+* Key chords
+** get key chords
+#+BEGIN_SRC emacs-lisp
+  (use-package use-package-chords
+          :demand t
+          :config
+          (key-chord-mode t))
+#+END_SRC
+
+** easy previous buffer jump
+#+BEGIN_SRC emacs-lisp
+  (defun rj/switch-to-previous-buffer ()
+	  "Switch to previously open buffer.
+	Repeated invocations toggle between the two most recently open buffers."
+	  (interactive)
+	  (switch-to-buffer (other-buffer (current-buffer) 1)))
+
+	(key-chord-define-global "HH" 'rj/switch-to-previous-buffer)
+#+END_SRC
+
+
+* Command completion
+** smex
+#+BEGIN_SRC emacs-lisp
+  (use-package smex
+	  :ensure t)
+#+END_SRC
+
+** ivy
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy
+		:ensure t
+		:diminish ivy-mode
+		:config
+		(ivy-mode t))
+
+  (setq ivy-initial-inputs-alist nil)
+#+END_SRC
+
+** counsel
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel
+	  :ensure t
+	  :bind (("M-x" . counsel-M-x))
+	  :chords (("yy" . counsel-yank-pop)))
+#+END_SRC
+
+** swiper
+#+BEGIN_SRC emacs-lisp
+  (use-package swiper
+	  :ensure t
+	  :bind (("M-s" . swiper)))
+#+END_SRC
+
+** hydra
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy-hydra
+	  :ensure t)
+#+END_SRC
+
+
+* Coding
+** Smartparens
+#+BEGIN_SRC emacs-lisp
+  (use-package smartparens
+	  :ensure t
+	  :diminish smartparens-mode
+	  :config
+	  (add-hook 'prog-mode-hook 'smartparens-mode))
+#+END_SRC
+
+** Highlight parens
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+	  :ensure t
+	  :config
+	  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+#+END_SRC
+
+** Highlight strings representing colors
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-mode
+	  :ensure t
+	  :config
+	  (setq rainbow-x-colors nil)
+	  (add-hook 'prog-mode-hook 'rainbow-mode))
+#+END_SRC
+
+** aggressive indent
+#+BEGIN_SRC emacs-lisp
+  (use-package aggressive-indent
+		:ensure t)
+#+END_SRC
+
+** expand parens
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'prog-mode-hook 'electric-pair-mode)
+#+END_SRC
+
+** smart dashes
+#+BEGIN_SRC emacs-lisp
+  (use-package smart-dash
+	  :ensure t
+	  :config
+	  (add-hook 'python-mode-hook 'smart-dash-mode))
+#+END_SRC
+
+** Syntax checking
+Flycheck
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+	  :ensure t
+	  :config
+	  (add-hook 'after-init-hook 'global-flycheck-mode)
+	  (add-hook 'flycheck-mode-hook 'jc/use-eslint-from-node-modules)
+	  (add-to-list 'flycheck-checkers 'proselint)
+	  (setq-default flycheck-highlighting-mode 'lines)
+	  ;; Define fringe indicator / warning levels
+	  (define-fringe-bitmap 'flycheck-fringe-bitmap-ball
+		(vector #b00000000
+				#b00000000
+				#b00000000
+				#b00000000
+				#b00000000
+				#b00000000
+				#b00000000
+				#b00011100
+				#b00111110
+				#b00111110
+				#b00111110
+				#b00011100
+				#b00000000
+				#b00000000
+				#b00000000
+				#b00000000
+				#b00000000))
+	  (flycheck-define-error-level 'error
+		:severity 2
+		:overlay-category 'flycheck-error-overlay
+		:fringe-bitmap 'flycheck-fringe-bitmap-ball
+		:fringe-face 'flycheck-fringe-error)
+	  (flycheck-define-error-level 'warning
+		:severity 1
+		:overlay-category 'flycheck-warning-overlay
+		:fringe-bitmap 'flycheck-fringe-bitmap-ball
+		:fringe-face 'flycheck-fringe-warning)
+	  (flycheck-define-error-level 'info
+		:severity 0
+		:overlay-category 'flycheck-info-overlay
+		:fringe-bitmap 'flycheck-fringe-bitmap-ball
+		:fringe-face 'flycheck-fringe-info))
+#+END_SRC
+
+** Proselint
+#+BEGIN_SRC emacs-lisp
+  (flycheck-define-checker proselint
+	  "A linter for prose."
+	  :command ("proselint" source-inplace)
+	  :error-patterns
+	  ((warning line-start (file-name) ":" line ":" column ": "
+				(id (one-or-more (not (any " "))))
+				(message (one-or-more not-newline)
+						 (zero-or-more "\n" (any " ") (one-or-more not-newline)))
+				line-end))
+	  :modes (text-mode markdown-mode gfm-mode org-mode))
+#+END_SRC
+
+** Autocomplete
+#+BEGIN_SRC emacs-lisp
+	(use-package company
+	  :ensure t
+	  :diminish
+	  :config
+	  (add-hook 'after-init-hook 'global-company-mode)
+
+	  (setq company-idle-delay t)
+
+	  (use-package company-go
+		:ensure t
+		:config
+		(add-to-list 'company-backends 'company-go))
+
+	  (use-package company-anaconda
+		:ensure t
+		:config
+		(add-to-list 'company-backends 'company-anaconda)))
+#+END_SRC
+
+disable auto lowercase
+#+BEGIN_SRC emacs-lisp
+  (setq company-dabbrev-downcase nil)
+#+END_SRC
+
+
+* Project management
+** Projectile
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile
+	  :ensure t
+	  :config
+	  (projectile-mode))
+#+END_SRC
+
+** Integrate projectile with ivy
+#+BEGIN_SRC emacs-lisp
+  (setq projectile-completion-system 'ivy)
+#+END_SRC
+
+** Extra completion
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel-projectile
+	  :ensure t
+	  :config
+	  (add-hook 'after-init-hook 'counsel-projectile-mode))
+#+END_SRC
+
+** Fuzzy search
+#+BEGIN_SRC emacs-lisp
+  (use-package fzf
+	  :ensure t)
+#+END_SRC
+
+** Environment management
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+	  :ensure t
+	  :config
+	  (exec-path-from-shell-initialize))
+#+END_SRC
+
+** Jump to source
+#+BEGIN_SRC emacs-lisp
+  (use-package dumb-jump
+	  :ensure t
+	  :diminish dumb-jump-mode
+	  :bind (("C-M-g" . dumb-jump-go)
+			 ("C-M-b" . dumb-jump-back)
+			 ("C-M-l" . dumb-jump-quick-look)))
+#+END_SRC
+
+** Git
+Install magit
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+	  :ensure t
+	  :bind ("C-x g" . magit-status))
+#+END_SRC
+
+Display line changes
+#+BEGIN_SRC emacs-lisp
+  (use-package git-gutter
+	  :ensure t
+	  :config
+	  (global-git-gutter-mode 't)
+	  :diminish git-gutter-mode)
+#+END_SRC
+
+Time machine
+#+BEGIN_SRC emacs-lisp
+  (use-package git-timemachine
+	  :ensure t)
+#+END_SRC
+
+* Python
+** anaconda mode
+#+BEGIN_SRC emacs-lisp
+  (use-package anaconda-mode
+	  :ensure t
+	  :config
+	  (add-hook 'python-mode-hook 'anaconda-mode)
+	  (add-hook 'python-mode-hook 'anaconda-eldoc-mode))
+#+END_SRC
+
+
+* C++
+** irony mode
+#+BEGIN_SRC emacs-lisp
+  (use-package irony
+	  :ensure t
+	  :hook (c-mode . irony-mode))
+#+END_SRC
+
+** company
+#+BEGIN_SRC emacs-lisp
+  (use-package company-irony
+	  :ensure t
+	  :config
+	  (add-to-list 'company-backends 'company-irony))
+#+END_SRC
+
+** flycheck
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck-irony
+	  :ensure t
+	  :hook (flycheck-mode . flycheck-irony-setup))
+#+END_SRC
+
+
+* Utils
+** Writing
+#+BEGIN_SRC emacs-lisp
+  (use-package writegood-mode
+	  :ensure t
+	  :bind ("C-c g" . writegood-mode)
+	  :config
+	  (add-to-list 'writegood-weasel-words "actionable"))
+#+END_SRC
+
+** Stack Overflow
+#+BEGIN_SRC emacs-lisp
+  (use-package sx
+	  :ensure t
+	  :config
+	  (bind-keys :prefix "C-c s"
+				 :prefix-map my-sx-map
+				 :prefix-docstring "Global keymap for SX."
+				 ("q" . sx-tab-all-questions)
+				 ("i" . sx-inbox)
+				 ("o" . sx-open-link)
+				 ("u" . sx-tab-unanswered-my-tags)
+				 ("a" . sx-ask)
+				 ("s" . sx-search)))
+#+END_SRC
+
+** Slack
+#+BEGIN_SRC emacs-lisp
+  (use-package slack
+	  :ensure t
+	  :commands (slack-start))
+#+END_SRC
+
+** Google
+#+BEGIN_SRC emacs-lisp
+  (use-package google-this
+	  :ensure t)
+#+END_SRC
+
 
