@@ -18,20 +18,28 @@
 
 ;;; Required packages
 (require 'package)
-(setq package-enable-at-startup nil)
+(setq-default
+   load-prefer-newer t
+   package-enable-at-startup nil)
 
-;;; remove SC if you are not using sunrise commander and org if you like outdated packages
-(setq package-archives '(("ELPA"  . "http://tromey.com/elpa/")
-			 ("gnu"   . "http://elpa.gnu.org/packages/")
-			 ("melpa" . "https://melpa.org/packages/")
-			 ("org"   . "https://orgmode.org/elpa/")))
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+(add-to-list 'package-archives '("gnu"   . "http://elpa.gnu.org/packages/") t)
+
 (package-initialize)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;; Bootstrapping use-package
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
-  (package-install 'use-package))
+  (package-install 'use-package t))
+
+(setq-default
+   use-package-always-defer t
+   use-package-always-ensure t)
+
+;; Use latest Org
+(use-package org :ensure org-plus-contrib)
 
 ;;; The actual config file; omitted if dne
 (when (file-readable-p "~/.emacs.d/config.org")
