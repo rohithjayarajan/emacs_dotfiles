@@ -1,3 +1,11 @@
+* Load Plugins
+#+BEGIN_SRC emacs-lisp
+  (let ((default-directory "~/.emacs.d/plugins"))
+    (normal-top-level-add-to-load-path '("."))
+    (normal-top-level-add-subdirs-to-load-path))
+#+END_SRC
+
+
 * Visual
 ** Themes
 Current favorite theme solarized-dark-high-contrast
@@ -53,6 +61,25 @@ Inhibit startup message
 			   ("<=" . "≤")
 			   ("[]" . "⃞")
 			   ("=" . "≝")))))
+#+END_SRC
+
+** dimmer
+#+BEGIN_SRC emacs-lisp
+  (use-package dimmer
+    :disabled
+    :custom
+    (dimmer-fraction 0.5)
+    (dimmer-exclusion-regexp-list
+	 '(".*Minibuf.*"
+	   ".*which-key.*"
+	   ".*NeoTree.*"
+	   ".*Messages.*"
+	   ".*Async.*"
+	   ".*Warnings.*"
+	   ".*LV.*"
+	   ".*Ilist.*"))
+    :config
+    (dimmer-mode t))
 #+END_SRC
 
 
@@ -142,7 +169,7 @@ Map hh to escape
 
 * General
 ** GUI
-Disable beeping, gui popups. Echo faster keystrokes, kill process, enable all commands 
+Disable beeping, gui popups. Echo faster keystrokes, kill process, enable all commands
 #+BEGIN_SRC emacs-lisp
   (setq ring-bell-function 'ignore        ; disable beeping
 	x-gtk-use-system-tooltips nil     ; disable gui popups
@@ -174,8 +201,13 @@ Scroll settings
 
 Line numbers
 #+BEGIN_SRC emacs-lisp
-  (global-linum-mode t)
-  (when window-system (add-hook 'prog-mode-hook 'hl-line-mode))
+  (setq line-number-mode t)
+
+  (use-package linum-relative
+    :ensure t
+    :config
+      (setq linum-relative-current-symbol "")
+      (add-hook 'prog-mode-hook 'linum-relative-mode))
 #+END_SRC
 
 Highlight lines
@@ -243,34 +275,6 @@ Save options
 	      (setq show-trailing-whitespace 1)))
 #+END_SRC
 
-
-* Editor
-** Speedbar
-Use speedbar
-#+BEGIN_SRC emacs-lisp
-  (use-package speedbar)
-  
-  (use-package sr-speedbar
-    :ensure t
-    :init
-    (set-variable 'sr-speedbar-right-side nil))
-
-  (use-package projectile-speedbar
-    :ensure t
-    :disabled t)
-
-  (make-face 'speedbar-face)
-  (set-face-font 'speedbar-face "Mono-12")
-  (setq speedbar-mode-hook '(lambda () (buffer-face-set 'speedbar-face)))
-
-  (setq sr-speedbar-width 10)
-
-  (custom-set-variables
-   '(speedbar-show-unknown-files t))
-
-  (add-hook 'emacs-startup-hook (lambda ()
-    (sr-speedbar-open)))
-#+END_SRC
 
 
 * Terminal
@@ -462,6 +466,14 @@ Use speedbar
   (global-set-key (kbd "C-c i") 'indent-region-or-buffer)
 #+END_SRC
 
+** avy
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :ensure t
+    :bind
+      ("M-s" . avy-goto-char))
+#+END_SRC
+
 
 * Key chords
 ** get key chords
@@ -514,7 +526,7 @@ Use speedbar
 #+BEGIN_SRC emacs-lisp
   (use-package swiper
 	  :ensure t
-	  :bind (("M-s" . swiper)))
+	  :bind (("C-s" . swiper)))
 #+END_SRC
 
 ** hydra
@@ -577,28 +589,27 @@ Flycheck
 	  :ensure t
 	  :config
 	  (add-hook 'after-init-hook 'global-flycheck-mode)
-	  (add-hook 'flycheck-mode-hook 'jc/use-eslint-from-node-modules)
 	  (add-to-list 'flycheck-checkers 'proselint)
 	  (setq-default flycheck-highlighting-mode 'lines)
 	  ;; Define fringe indicator / warning levels
 	  (define-fringe-bitmap 'flycheck-fringe-bitmap-ball
 		(vector #b00000000
-				#b00000000
-				#b00000000
-				#b00000000
-				#b00000000
-				#b00000000
-				#b00000000
-				#b00011100
-				#b00111110
-				#b00111110
-				#b00111110
-				#b00011100
-				#b00000000
-				#b00000000
-				#b00000000
-				#b00000000
-				#b00000000))
+			#b00000000
+			#b00000000
+			#b00000000
+			#b00000000
+			#b00000000
+			#b00000000
+			#b00011100
+			#b00111110
+			#b00111110
+			#b00111110
+			#b00011100
+			#b00000000
+			#b00000000
+			#b00000000
+			#b00000000
+			#b00000000))
 	  (flycheck-define-error-level 'error
 		:severity 2
 		:overlay-category 'flycheck-error-overlay
@@ -632,23 +643,18 @@ Flycheck
 
 ** Autocomplete
 #+BEGIN_SRC emacs-lisp
-	(use-package company
-	  :ensure t
-	  :diminish
-	  :config
-	  (add-hook 'after-init-hook 'global-company-mode)
+  (use-package company
+    :ensure t
+    :diminish
+    :config
+    (add-hook 'after-init-hook 'global-company-mode)
+    (global-set-key (kbd "M-/") 'company-complete-common-or-cycle)
+    (setq company-idle-delay 0)
 
-	  (setq company-idle-delay t)
-
-	  (use-package company-go
-		:ensure t
-		:config
-		(add-to-list 'company-backends 'company-go))
-
-	  (use-package company-anaconda
-		:ensure t
-		:config
-		(add-to-list 'company-backends 'company-anaconda)))
+    (use-package company-anaconda
+          :ensure t
+          :config
+          (add-to-list 'company-backends 'company-anaconda)))
 #+END_SRC
 
 disable auto lowercase
@@ -665,6 +671,33 @@ disable auto lowercase
           :config
           (define-key projectile-mode-map (kbd "C-x p") 'projectile-command-map)
           (projectile-mode +1))
+#+END_SRC
+
+** Speedbar
+Use speedbar
+#+BEGIN_SRC emacs-lisp
+  (use-package speedbar)
+
+  (use-package sr-speedbar
+    :ensure t
+    :init
+    (set-variable 'sr-speedbar-right-side nil))
+
+  (use-package projectile-speedbar
+    :ensure t
+    :disabled t)
+
+  (make-face 'speedbar-face)
+  (set-face-font 'speedbar-face "Mono-12")
+  (setq speedbar-mode-hook '(lambda () (buffer-face-set 'speedbar-face)))
+
+  (setq sr-speedbar-width 10)
+
+  (custom-set-variables
+   '(speedbar-show-unknown-files t))
+
+  (add-hook 'emacs-startup-hook (lambda ()
+    (sr-speedbar-open)))
 #+END_SRC
 
 ** Integrate projectile with ivy
@@ -709,7 +742,7 @@ Install magit
 #+BEGIN_SRC emacs-lisp
   (use-package magit
 	  :ensure t
-	  :bind ("C-x g" . magit-status))
+	  :bind ("M-g" . magit-status))
 #+END_SRC
 
 Display line changes
@@ -762,175 +795,34 @@ Time machine
 	  :hook (flycheck-mode . flycheck-irony-setup))
 #+END_SRC
 
-** google c style
-#+BEGIN_SRC emacs-lisp
-  ;;; google-c-style.el --- Google's C/C++ style for c-mode
-
-  ;; Keywords: c, tools
-
-  ;; google-c-style.el is Copyright (C) 2008 Google Inc. All Rights Reserved.
-  ;;
-  ;; It is free software; you can redistribute it and/or modify it under the
-  ;; terms of either:
-  ;;
-  ;; a) the GNU General Public License as published by the Free Software
-  ;; Foundation; either version 1, or (at your option) any later version, or
-  ;;
-  ;; b) the "Artistic License".
-
-  ;;; Commentary:
-
-  ;; Provides the google C/C++ coding style. You may wish to add
-  ;; `google-set-c-style' to your `c-mode-common-hook' after requiring this
-  ;; file. For example:
-  ;;
-  ;;    (add-hook 'c-mode-common-hook 'google-set-c-style)
-  ;;
-  ;; If you want the RETURN key to go to the next line and space over
-  ;; to the right place, add this to your .emacs right after the load-file:
-  ;;
-  ;;    (add-hook 'c-mode-common-hook 'google-make-newline-indent)
-
-  ;;; Code:
-
-  ;; For some reason 1) c-backward-syntactic-ws is a macro and 2)  under Emacs 22
-  ;; bytecode cannot call (unexpanded) macros at run time:
-  (eval-when-compile (require 'cc-defs))
-
-  ;; Wrapper function needed for Emacs 21 and XEmacs (Emacs 22 offers the more
-  ;; elegant solution of composing a list of lineup functions or quantities with
-  ;; operators such as "add")
-  (defun google-c-lineup-expression-plus-4 (langelem)
-    "Indents to the beginning of the current C expression plus 4 spaces.
-
-  This implements title \"Function Declarations and Definitions\"
-  of the Google C++ Style Guide for the case where the previous
-  line ends with an open parenthese.
-
-  \"Current C expression\", as per the Google Style Guide and as
-  clarified by subsequent discussions, means the whole expression
-  regardless of the number of nested parentheses, but excluding
-  non-expression material such as \"if(\" and \"for(\" control
-  structures.
-
-  Suitable for inclusion in `c-offsets-alist'."
-    (save-excursion
-      (back-to-indentation)
-      ;; Go to beginning of *previous* line:
-      (c-backward-syntactic-ws)
-      (back-to-indentation)
-      (cond
-       ;; We are making a reasonable assumption that if there is a control
-       ;; structure to indent past, it has to be at the beginning of the line.
-       ((looking-at "\\(\\(if\\|for\\|while\\)\\s *(\\)")
-        (goto-char (match-end 1)))
-       ;; For constructor initializer lists, the reference point for line-up is
-       ;; the token after the initial colon.
-       ((looking-at ":\\s *")
-        (goto-char (match-end 0))))
-      (vector (+ 4 (current-column)))))
-
-  ;;;###autoload
-  (defconst google-c-style
-    `((c-recognize-knr-p . nil)
-      (c-enable-xemacs-performance-kludge-p . t) ; speed up indentation in XEmacs
-      (c-basic-offset . 2)
-      (indent-tabs-mode . nil)
-      (c-comment-only-line-offset . 0)
-      (c-hanging-braces-alist . ((defun-open after)
-                                 (defun-close before after)
-                                 (class-open after)
-                                 (class-close before after)
-                                 (inexpr-class-open after)
-                                 (inexpr-class-close before)
-                                 (namespace-open after)
-                                 (inline-open after)
-                                 (inline-close before after)
-                                 (block-open after)
-                                 (block-close . c-snug-do-while)
-                                 (extern-lang-open after)
-                                 (extern-lang-close after)
-                                 (statement-case-open after)
-                                 (substatement-open after)))
-      (c-hanging-colons-alist . ((case-label)
-                                 (label after)
-                                 (access-label after)
-                                 (member-init-intro before)
-                                 (inher-intro)))
-      (c-hanging-semi&comma-criteria
-       . (c-semi&comma-no-newlines-for-oneline-inliners
-          c-semi&comma-inside-parenlist
-          c-semi&comma-no-newlines-before-nonblanks))
-      (c-indent-comments-syntactically-p . t)
-      (comment-column . 40)
-      (c-indent-comment-alist . ((other . (space . 2))))
-      (c-cleanup-list . (brace-else-brace
-                         brace-elseif-brace
-                         brace-catch-brace
-                         empty-defun-braces
-                         defun-close-semi
-                         list-close-comma
-                         scope-operator))
-      (c-offsets-alist . ((arglist-intro google-c-lineup-expression-plus-4)
-                          (func-decl-cont . ++)
-                          (member-init-intro . ++)
-                          (inher-intro . ++)
-                          (comment-intro . 0)
-                          (arglist-close . c-lineup-arglist)
-                          (topmost-intro . 0)
-                          (block-open . 0)
-                          (inline-open . 0)
-                          (substatement-open . 0)
-                          (statement-cont
-                           .
-                           (,(when (fboundp 'c-no-indent-after-java-annotations)
-                               'c-no-indent-after-java-annotations)
-                            ,(when (fboundp 'c-lineup-assignments)
-                               'c-lineup-assignments)
-                            ++))
-                          (label . /)
-                          (case-label . +)
-                          (statement-case-open . +)
-                          (statement-case-intro . +) ; case w/o {
-                          (access-label . /)
-                          (innamespace . 0))))
-    "Google C/C++ Programming Style.")
-
-  ;;;###autoload
-  (defun google-set-c-style ()
-    "Set the current buffer's c-style to Google C/C++ Programming
-    Style. Meant to be added to `c-mode-common-hook'."
-    (interactive)
-    (make-local-variable 'c-tab-always-indent)
-    (setq c-tab-always-indent t)
-    (c-add-style "Google" google-c-style t))
-
-  ;;;###autoload
-  (defun google-make-newline-indent ()
-    "Sets up preferred newline behavior. Not set by default. Meant
-    to be added to `c-mode-common-hook'."
-    (interactive)
-    (define-key c-mode-base-map "\C-m" 'newline-and-indent)
-    (define-key c-mode-base-map [ret] 'newline-and-indent))
-
-  (provide 'google-c-style)
-  ;;; google-c-style.el ends here
-#+END_SRC
-
-activate google c++ style
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'c-mode-common-hook 'google-set-c-style)
-  (add-hook 'c-mode-common-hook 'google-make-newline-indent)
-#+END_SRC
-
 ** clang-format
 #+BEGIN_SRC emacs-lisp
   (use-package clang-format)
+  (setq clang-format-style-option "/home/rjayarajan/.clang-format")
 
   (add-hook 'c-mode-common-hook
             (function (lambda ()
                       (add-hook 'before-save-hook
                                 'clang-format-buffer))))
+
+  (add-hook 'c++-mode-common-hook
+            (function (lambda ()
+                      (add-hook 'before-save-hook
+                                'clang-format-buffer))))
+#+END_SRC
+
+** cpplint
+#+BEGIN_SRC emacs-lisp
+  (eval-after-load 'flycheck
+    '(progn
+       (require 'flycheck-google-cpplint)
+       ;; Add Google C++ Style checker.
+       ;; In default, syntax checked by Clang and Cppcheck.
+       (flycheck-add-next-checker 'c/c++-cppcheck
+                                  '(warning . c/c++-googlelint))))
+
+  (custom-set-variables
+   '(flycheck-c/c++-googlelint-executable "~/.emacs.d/plugins/cpplint.py"))
 #+END_SRC
 
 
@@ -974,3 +866,63 @@ activate google c++ style
 #+END_SRC
 
 
+
+* Config
+** Visiting the configuration
+Quickly edit =~/.emacs.d/config.org=
+#+BEGIN_SRC emacs-lisp
+  (defun config-visit ()
+    (interactive)
+    (find-file "~/.emacs.d/config.org"))
+  (global-set-key (kbd "C-c c e") 'config-visit)
+#+END_SRC
+
+** Reloading the configuration
+   
+Simply pressing =Control-c c r= will reload this file, very handy.
+You can also manually invoke =config-reload=.
+#+BEGIN_SRC emacs-lisp
+  (defun config-reload ()
+    "Reloads ~/.emacs.d/config.org at runtime"
+    (interactive)
+    (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
+  (global-set-key (kbd "C-c c r") 'config-reload)
+#+END_SRC
+
+
+* Windows
+** switch windows
+#+BEGIN_SRC emacs-lisp
+  (use-package switch-window
+    :ensure t
+    :config
+      (setq switch-window-input-style 'minibuffer)
+      (setq switch-window-increase 4)
+      (setq switch-window-threshold 2)
+      (setq switch-window-shortcut-style 'qwerty)
+      (setq switch-window-qwerty-shortcuts
+          '("a" "o" "e" "u" "h" "t" "n" "s" "c"))
+    :bind
+      ([remap other-window] . switch-window))
+#+END_SRC
+
+** follow splits
+vertical splits
+#+BEGIN_SRC emacs-lisp
+  (defun split-and-follow-horizontally ()
+    (interactive)
+    (split-window-below)
+    (balance-windows)
+    (other-window 1))
+  (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
+#+END_SRC
+
+horizontal splits
+#+BEGIN_SRC emacs-lisp
+  (defun split-and-follow-vertically ()
+    (interactive)
+    (split-window-right)
+    (balance-windows)
+    (other-window 1))
+  (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
+#+END_SRC
