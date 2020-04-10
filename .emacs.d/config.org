@@ -1,4 +1,4 @@
-* Load Plugins
+* Loading
 #+BEGIN_SRC emacs-lisp
   (let ((default-directory "~/.emacs.d/plugins"))
     (normal-top-level-add-to-load-path '("."))
@@ -594,22 +594,22 @@ Flycheck
 	  ;; Define fringe indicator / warning levels
 	  (define-fringe-bitmap 'flycheck-fringe-bitmap-ball
 		(vector #b00000000
-			#b00000000
-			#b00000000
-			#b00000000
-			#b00000000
-			#b00000000
-			#b00000000
-			#b00011100
-			#b00111110
-			#b00111110
-			#b00111110
-			#b00011100
-			#b00000000
-			#b00000000
-			#b00000000
-			#b00000000
-			#b00000000))
+#b00000000
+#b00000000
+#b00000000
+#b00000000
+#b00000000
+#b00000000
+#b00011100
+#b00111110
+#b00111110
+#b00111110
+#b00011100
+#b00000000
+#b00000000
+#b00000000
+#b00000000
+#b00000000))
 	  (flycheck-define-error-level 'error
 		:severity 2
 		:overlay-category 'flycheck-error-overlay
@@ -798,7 +798,7 @@ Time machine
 ** clang-format
 #+BEGIN_SRC emacs-lisp
   (use-package clang-format)
-  (setq clang-format-style-option "/home/rjayarajan/.clang-format")
+  (setq clang-format-style-option "~/.emacs.d/plugins/cpp-plugins/.clang-format")
 
   (add-hook 'c-mode-common-hook
             (function (lambda ()
