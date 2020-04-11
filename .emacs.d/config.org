@@ -1,0 +1,453 @@
+* Setup
+
+** Set Package Sources
+
+*** Add package repositories
+
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+
+  (setq package-enable-at-startup nil)
+  (setq package-archives '(("gnu" . "http://mirrors.163.com/elpa/gnu/")
+                           ("melpa" . "https://melpa.org/packages/")
+                           ("org" . "http://orgmode.org/elpa/")))
+
+  (package-initialize)
+#+END_SRC
+
+** Bootstrap use-package
+
+*** Install =use-package=
+
+#+BEGIN_SRC emacs-lisp
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package)
+    (eval-when-compile (require 'use-package)))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (setq use-package-always-ensure t)
+#+END_SRC
+
+** Benchmark Startup
+
+*** Record startup time by package for debug
+
+#+BEGIN_SRC emacs-lisp
+  (use-package benchmark-init
+    :config
+    ;; To disable collection of benchmark data after init is done.
+    (add-hook 'after-init-hook 'benchmark-init/deactivate))
+
+  (add-hook 'after-init-hook
+            (lambda () (message "loaded in %s" (emacs-init-time))))
+#+END_SRC
+
+** Increased Garbage Collection
+
+#+BEGIN_SRC emacs-lisp
+  (setq gc-cons-threshold 10000000)
+
+  ;; Restore after startup
+  (add-hook 'after-init-hook
+            (lambda ()
+              (setq gc-cons-threshold 1000000)
+              (message "gc-cons-threshold restored to %S"
+                       gc-cons-threshold)))
+#+END_SRC
+
+** Visit Configuration
+
+*** Quickly edit =~/.emacs.d/config.org=
+
+#+BEGIN_SRC emacs-lisp
+  (defun config-visit ()
+    (interactive)
+    (find-file "~/.emacs.d/config.org"))
+  (global-set-key (kbd "C-c c e") 'config-visit)
+#+END_SRC
+
+** Reloading Configuration
+   
+*** Simply pressing =Control-c c r= will reload this file, very handy. You can also manually invoke =config-reload=.
+
+#+BEGIN_SRC emacs-lisp
+  (defun config-reload ()
+    "Reloads ~/.emacs.d/config.org at runtime"
+    (interactive)
+    (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
+  (global-set-key (kbd "C-c c r") 'config-reload)
+#+END_SRC
+
+
+* Emacs Visual
+
+** Themes
+
+*** Current favorite theme solarized-dark-high-contrast
+
+#+BEGIN_SRC emacs-lisp
+  (use-package solarized-theme
+    :ensure t
+    :init (load-theme 'solarized-dark-high-contrast t))
+#+END_SRC
+
+** Font
+
+#+BEGIN_SRC emacs-lisp
+  (set-frame-font "DejaVu Sans Mono-16" t t)
+  (set-fontset-font t 'unicode "STIXGeneral" nil 'prepend)
+#+END_SRC
+
+
+* Emacs Settings
+
+** Startup Screen
+
+*** Inhibit Startup Message
+
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-startup-message t)
+#+END_SRC
+
+** GUI
+
+*** Disable beeping, gui popups. Echo faster keystrokes, kill process, enable all commands
+
+#+BEGIN_SRC emacs-lisp
+  (setq ring-bell-function 'ignore        ; disable beeping
+	x-gtk-use-system-tooltips nil     ; disable gui popups
+	use-dialog-box nil                ; disable gui popups
+	echo-keystrokes 0.5               ; echo keystrokes faster
+	confirm-kill-processes nil        ; kill the process
+	disabled-command-function nil)    ; enable all commands
+#+END_SRC
+
+*** Hide gui funcionalities
+
+#+BEGIN_SRC emacs-lisp
+  (menu-bar-mode -1)                      ; hide menu-bar
+  (tool-bar-mode -1)                      ; hide tool-bar
+  (scroll-bar-mode -1)                    ; hide scroll-bar
+  (blink-cursor-mode 0)                   ; disable blinking
+  (show-paren-mode t)                     ; enable matching paren highlight
+  (column-number-mode t)                  ; enable column numbers
+#+END_SRC
+
+*** Simplify yes or no
+
+#+BEGIN_SRC emacs-lisp
+  (defalias 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+
+** Scroll Settings
+
+#+BEGIN_SRC emacs-lisp
+  (setq mouse-wheel-scroll-amount '(1)     ; gentle scrolling
+	mouse-wheel-progressive-speed nil  ; disable acceleration
+	scroll-conservatively 101          ; disable jump to the middle of screen
+	hscroll-margin 1                   ; disable early scroll
+	hscroll-step 1                     ; small step of scroll
+	scroll-preserve-screen-position t) ; try to keep cursor in its position
+#+END_SRC
+
+** Line Highlighting
+
+*** Beacon
+
+#+BEGIN_SRC emacs-lisp
+  (use-package beacon
+    :ensure t
+    :init
+    (beacon-mode 1))
+#+END_SRC
+
+** Suggestions
+
+*** Which key
+
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :ensure t
+    :init
+    (which-key-mode))
+#+END_SRC
+
+
+* Security
+
+** TLS
+
+#+BEGIN_SRC emacs-lisp
+  (setq gnutls-verify-error t
+	tls-checktrust t)
+#+END_SRC
+
+
+* Keybindings
+
+** Control Keybinds
+
+*** Swap “C-t” and “C-x”
+
+#+BEGIN_SRC emacs-lisp
+  (keyboard-translate ?\C-t ?\C-x)
+  (keyboard-translate ?\C-x ?\C-t)
+#+END_SRC
+
+
+* Keychords
+
+** Use key-chord
+
+#+BEGIN_SRC emacs-lisp
+  (use-package key-chord
+     :ensure t
+     :config
+     (key-chord-mode 1))
+#+END_SRC
+
+
+* Window
+
+** Switch Windows
+
+#+BEGIN_SRC emacs-lisp
+  (use-package switch-window
+    :ensure t
+    :config
+      (setq switch-window-input-style 'minibuffer)
+      (setq switch-window-increase 4)
+      (setq switch-window-threshold 2)
+      (setq switch-window-shortcut-style 'qwerty)
+      (setq switch-window-qwerty-shortcuts
+          '("a" "o" "e" "u" "h" "t" "n" "s" "c"))
+    :bind
+      ([remap other-window] . switch-window))
+#+END_SRC
+
+** Follow Splits
+
+*** Vertical Splits
+
+#+BEGIN_SRC emacs-lisp
+  (defun split-and-follow-horizontally ()
+    (interactive)
+    (split-window-below)
+    (balance-windows)
+    (other-window 1))
+  (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
+#+END_SRC
+
+*** Horizontal Splits
+
+#+BEGIN_SRC emacs-lisp
+  (defun split-and-follow-vertically ()
+    (interactive)
+    (split-window-right)
+    (balance-windows)
+    (other-window 1))
+  (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
+#+END_SRC
+
+
+* Org Mode Settings
+
+** Common
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-ellipsis " ")
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-export-with-smart-quotes t)
+  (setq org-src-window-setup 'current-window)
+  (add-hook 'org-mode-hook 'org-indent-mode)
+#+END_SRC
+
+** Line Wrapping
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'org-mode-hook
+	      '(lambda ()
+		 (visual-line-mode 1)))
+#+END_SRC
+
+** Org Bullets
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-bullets
+    :ensure t
+    :config
+      (add-hook 'org-mode-hook (lambda () (org-bullets-mode))))
+#+END_SRC
+
+** Templatize emacs-lisp
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'org-structure-template-alist
+		 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
+#+END_SRC
+
+
+* Vim
+** Evil
+
+*** Download Evil
+
+#+BEGIN_SRC emacs-lisp
+  (unless (package-installed-p 'evil)
+    (package-install 'evil))
+#+END_SRC
+
+*** Enable Evil
+
+#+BEGIN_SRC emacs-lisp
+  (require 'evil)
+  (evil-mode 1)
+#+END_SRC
+
+** Vimrc
+
+*** Requirements
+
+#+BEGIN_SRC emacs-lisp
+  (require 'evil-states)
+  (require 'evil-ex)
+  (require 'evil-commands)
+  (require 'evil-command-window)
+  (require 'evil-common)
+#+END_SRC
+
+*** Window Commands
+
+#+BEGIN_SRC emacs-lisp
+  (define-prefix-command 'evil-window-map)
+  (define-key evil-window-map (kbd "j") 'evil-window-delete)
+  (define-key evil-window-map (kbd "t") 'evil-window-down)
+  (define-key evil-window-map (kbd "T") 'evil-window-move-very-bottom)
+  (define-key evil-window-map (kbd "c") 'evil-window-up)
+  (define-key evil-window-map (kbd "C") 'evil-window-move-very-top)
+  (define-key evil-window-map (kbd "n") 'evil-window-right)
+  (define-key evil-window-map (kbd "n") 'evil-window-move-far-right)
+  (define-key evil-window-map (kbd "k") 'evil-window-new)
+  (define-key evil-window-map (kbd "l") 'evil-window-top-left)
+#+END_SRC
+
+*** Motion State Commands
+
+#+BEGIN_SRC emacs-lisp
+  (define-key evil-motion-state-map (kbd "t") 'evil-next-line)
+  (define-key evil-motion-state-map (kbd "c") 'evil-previous-line)
+  (define-key evil-motion-state-map (kbd "n") 'evil-forward-char)
+  (define-key evil-motion-state-map (kbd "k") 'evil-search-next)
+  (define-key evil-motion-state-map (kbd "K") 'evil-search-previous)
+  (define-key evil-motion-state-map (kbd "j") 'evil-find-char-to)
+  (define-key evil-motion-state-map (kbd "J") 'evil-find-char-to-backward)
+#+END_SRC
+
+*** Normal State Commands
+
+#+BEGIN_SRC emacs-lisp
+  (define-key evil-normal-state-map (kbd "t") 'evil-next-line)
+  (define-key evil-normal-state-map (kbd "c") 'evil-previous-line)
+  (define-key evil-normal-state-map (kbd "n") 'evil-forward-char)
+#+END_SRC
+
+*** Ex
+
+#+BEGIN_SRC emacs-lisp
+  (define-key evil-motion-state-map (kbd "SPC") 'evil-ex)
+#+END_SRC
+
+*** Use key-chord
+
+#+BEGIN_SRC emacs-lisp
+  (use-package key-chord
+    :ensure t)
+  (require 'key-chord)
+  (key-chord-mode 1)
+#+END_SRC
+
+*** Map hh to Escape
+
+#+BEGIN_SRC emacs-lisp
+  (key-chord-define evil-insert-state-map (kbd "hh") 'evil-normal-state)
+#+END_SRC
+
+
+* Git
+
+** Install Magit
+
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+	  :ensure t
+	  :bind ("M-g" . magit-status))
+#+END_SRC
+
+** Display Line Changes
+
+#+BEGIN_SRC emacs-lisp
+  (use-package git-gutter
+	  :ensure t
+	  :config
+	  (global-git-gutter-mode 't)
+	  :diminish git-gutter-mode)
+#+END_SRC
+
+** Time Machine
+
+#+BEGIN_SRC emacs-lisp
+  (use-package git-timemachine
+	  :ensure t)
+#+END_SRC
+
+
+* Apps
+
+** Stack Overflow
+
+#+BEGIN_SRC emacs-lisp
+  (use-package sx
+          :ensure t
+          :config
+          (bind-keys :prefix "C-c s"
+                                 :prefix-map my-sx-map
+                                 :prefix-docstring "Global keymap for SX."
+                                 ("q" . sx-tab-all-questions)
+                                 ("i" . sx-inbox)
+                                 ("o" . sx-open-link)
+                                 ("u" . sx-tab-unanswered-my-tags)
+                                 ("a" . sx-ask)
+                                 ("s" . sx-search)))
+#+END_SRC
+
+** Slack
+
+#+BEGIN_SRC emacs-lisp
+  (use-package slack
+	  :ensure t
+	  :commands (slack-start))
+#+END_SRC
+
+** Google
+
+#+BEGIN_SRC emacs-lisp
+  (use-package google-this
+	  :ensure t)
+#+END_SRC
+
+
+* Writing
+
+** Writing
+
+#+BEGIN_SRC emacs-lisp
+  (use-package writegood-mode
+	  :ensure t
+	  :bind ("C-c g" . writegood-mode)
+	  :config
+	  (add-to-list 'writegood-weasel-words "actionable"))
+#+END_SRC
