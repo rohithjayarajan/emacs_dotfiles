@@ -377,31 +377,49 @@
 #+END_SRC
 
 
-* Git
+* Project Management
 
-** Install Magit
+** Projectile
 
 #+BEGIN_SRC emacs-lisp
-  (use-package magit
-	  :ensure t
-	  :bind ("M-g" . magit-status))
+  (use-package projectile
+    :demand t
+    :init (projectile-global-mode 1)
+    :bind-keymap* ("C-x p" . projectile-command-map)
+    :config
+    (require 'projectile)
+    (use-package counsel-projectile 
+      :bind (("s-p" . counsel-projectile)
+             ("s-f" . counsel-projectile-find-file)
+             ("s-b" . counsel-projectile-switch-to-buffer)))
+    (setq projectile-use-git-grep t)
+    (setq projectile-completion-system 'ivy))
 #+END_SRC
 
-** Display Line Changes
+** Git
+
+*** Install Magit
 
 #+BEGIN_SRC emacs-lisp
-  (use-package git-gutter
-	  :ensure t
-	  :config
-	  (global-git-gutter-mode 't)
-	  :diminish git-gutter-mode)
+  (use-package magit 
+    :ensure t
+    :bind (("C-x g" . magit-status)
+           ("C-x M-g" . magit-blame))
+    :init (setq magit-auto-revert-mode nil)
+    :config (add-hook 'magit-mode-hook 'hl-line-mode))
 #+END_SRC
 
-** Time Machine
+*** Display Line Changes
 
 #+BEGIN_SRC emacs-lisp
-  (use-package git-timemachine
-	  :ensure t)
+  (use-package git-gutter+
+    :init (global-git-gutter+-mode)
+    :diminish git-gutter+-mode
+    :defer 5
+    :config (progn
+              (setq git-gutter+-modified-sign "==")
+              (setq git-gutter+-added-sign "++")
+              (setq git-gutter+-deleted-sign "--")))
 #+END_SRC
 
 
@@ -442,7 +460,7 @@
 
 * Writing
 
-** Writing
+** Writegood
 
 #+BEGIN_SRC emacs-lisp
   (use-package writegood-mode
