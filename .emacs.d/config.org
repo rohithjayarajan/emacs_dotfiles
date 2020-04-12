@@ -511,6 +511,33 @@ counsel enhances =ivy= versions of emacs commands
               (setq git-gutter+-deleted-sign "--")))
 #+END_SRC
 
+*** Navigation Bar
+
+#+BEGIN_SRC emacs-lisp
+  (use-package speedbar)
+
+  (use-package sr-speedbar
+    :ensure t
+    :init
+    (set-variable 'sr-speedbar-right-side nil))
+
+  (use-package projectile-speedbar
+    :ensure t
+    :disabled t)
+
+  (make-face 'speedbar-face)
+  (set-face-font 'speedbar-face "Mono-12")
+  (setq speedbar-mode-hook '(lambda () (buffer-face-set 'speedbar-face)))
+
+  (setq sr-speedbar-width 10)
+
+  (custom-set-variables
+   '(speedbar-show-unknown-files t))
+
+  (add-hook 'emacs-startup-hook (lambda ()
+    (sr-speedbar-open)))
+#+END_SRC
+
 
 * Search
 
@@ -676,6 +703,8 @@ Relative line numbering in programming mode
 
 ** company
 
+*** install
+
 #+BEGIN_SRC emacs-lisp
   (use-package company
     :ensure t
@@ -687,12 +716,19 @@ Relative line numbering in programming mode
   (add-hook 'after-init-hook 'global-company-mode)
 #+END_SRC
 
+*** company c headers
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company-c-headers)
+
+  (add-to-list 'company-backends 'company-c-headers)
+  (add-to-list 'company-c-headers-path-system "/usr/include/c++/7/")
+#+END_SRC
+
 
 * Languages
 
 ** C / C++
-
-** emacs-lisp
 
 ** Python
 
