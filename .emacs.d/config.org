@@ -609,7 +609,6 @@ Turn on the clock globally
 
 * Programming Mode
 
-
 ** Line Numbers in Programming
 
 Relative line numbering in programming mode
@@ -627,6 +626,33 @@ Relative line numbering in programming mode
 
 #+BEGIN_SRC emacs-lisp
   (when window-system (add-hook 'prog-mode-hook 'hl-line-mode))
+#+END_SRC
+
+** Parentheses
+
+*** Highlight Parentheses
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :config
+    (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+#+END_SRC
+
+*** Expand Parentheses
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'prog-mode-hook 'electric-pair-mode)
+#+END_SRC
+
+** Color Strings
+
+*** Highlight Strings Representing Colors
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-mode
+    :config
+    (setq rainbow-x-colors nil)
+    (add-hook 'prog-mode-hook 'rainbow-mode))
 #+END_SRC
 
 
