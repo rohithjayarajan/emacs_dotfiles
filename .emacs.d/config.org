@@ -10,6 +10,7 @@
   (setq package-enable-at-startup nil)
   (setq package-archives '(("gnu" . "http://mirrors.163.com/elpa/gnu/")
                            ("melpa" . "https://melpa.org/packages/")
+                           ("melpa stable" . "http://stable.melpa.org/packages/")
                            ("org" . "http://orgmode.org/elpa/")))
 
   (package-initialize)
@@ -660,17 +661,17 @@ Relative line numbering in programming mode
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
     :ensure t
-    :config
-      (use-package yasnippet-snippets
-        :ensure t)
-      (yas-reload-all))
+    :diminish yas-minor-mode
+    :init (yas-global-mode t))
 #+END_SRC
 
 ** flycheck
 
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck
-    :ensure t)
+    :ensure t
+    :diminish flycheck-mode
+    :init (global-flycheck-mode t))
 #+END_SRC
 
 ** company
@@ -678,6 +679,7 @@ Relative line numbering in programming mode
 #+BEGIN_SRC emacs-lisp
   (use-package company
     :ensure t
+    :diminish company-mode
     :config
     (setq company-idle-delay 0)
     (setq company-minimum-prefix-length 3))
