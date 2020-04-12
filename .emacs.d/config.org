@@ -100,6 +100,13 @@
   (set-fontset-font t 'unicode "STIXGeneral" nil 'prepend)
 #+END_SRC
 
+** Fullscreen on Startup
+
+#+BEGIN_SRC emacs-lisp
+  (custom-set-variables
+   '(initial-frame-alist (quote ((fullscreen . maximized)))))
+#+END_SRC
+
 
 * Emacs Settings
 
@@ -583,3 +590,12 @@ Relative line numbering in programming mode
 	  :config
 	  (add-to-list 'writegood-weasel-words "actionable"))
 #+END_SRC
+
+
+* References
+
+Various elements in this config have been inspired or used from the below resources:
+
+- https://github.com/daedreth/UncleDavesEmacs
+- https://jamiecollinson.com/blog/my-emacs-config/
+- https://pages.sachachua.com/.emacs.d/Sacha.html
