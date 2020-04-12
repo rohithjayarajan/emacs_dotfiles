@@ -804,7 +804,12 @@ Relative line numbering in programming mode
   (add-hook 'after-init-hook 'global-company-mode)
 #+END_SRC
 
-*** company c headers
+
+* Languages
+
+** C / C++
+
+*** company c / c++ headers
 
 #+BEGIN_SRC emacs-lisp
   (use-package company-c-headers)
@@ -813,10 +818,25 @@ Relative line numbering in programming mode
   (add-to-list 'company-c-headers-path-system "/usr/include/c++/7/")
 #+END_SRC
 
+*** clang-format
 
-* Languages
+uses a clang-format file stored in /plugins/cpp-plugins
 
-** C / C++
+#+BEGIN_SRC emacs-lisp
+  (use-package clang-format)
+
+  (setq clang-format-style-option "~/.emacs.d/plugins/cpp-plugins/.clang-format")
+
+  (add-hook 'c-mode-common-hook
+            (function (lambda ()
+                        (add-hook 'before-save-hook
+                                  'clang-format-buffer))))
+
+  (add-hook 'c++-mode-common-hook
+            (function (lambda ()
+                        (add-hook 'before-save-hook
+                                  'clang-format-buffer))))
+#+END_SRC
 
 ** Python
 
