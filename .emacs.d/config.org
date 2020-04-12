@@ -108,6 +108,26 @@
    '(initial-frame-alist (quote ((fullscreen . maximized)))))
 #+END_SRC
 
+** Visually highlight the selected buffer
+
+#+BEGIN_SRC emacs-lisp
+  (use-package dimmer
+    :custom
+    (dimmer-fraction 0.4)
+    (dimmer-exclusion-regexp-list
+           '(".*Minibuf.*"
+             ".*which-key.*"
+             ".*NeoTree.*"
+             ".*Messages.*"
+             ".*Async.*"
+             ".*Warnings.*"
+             ".*LV.*"
+             ".*Ilist.*"))
+    :config
+    (dimmer-configure-which-key)
+    (dimmer-mode t))
+#+END_SRC
+
 
 * Emacs Settings
 
@@ -233,8 +253,8 @@
 
 #+BEGIN_SRC emacs-lisp
   (use-package ivy
-        :config
-        (ivy-mode t))
+    :config
+    (ivy-mode t))
 #+END_SRC
 
 *** don't start filters with =^=
@@ -312,9 +332,9 @@ counsel enhances =ivy= versions of emacs commands
 
 #+BEGIN_SRC emacs-lisp
   (use-package key-chord
-     :ensure t
-     :config
-     (key-chord-mode 1))
+    :ensure t
+    :config
+    (key-chord-mode 1))
 #+END_SRC
 
 
@@ -597,7 +617,7 @@ Mapping
 #+END_SRC
 
 
-* Search
+* Navigation 
 
 ** avy
 
@@ -606,6 +626,16 @@ Mapping
     :ensure t
     :bind
       ("M-s" . avy-goto-char))
+#+END_SRC
+
+** anzu
+
+#+BEGIN_SRC emacs-lisp
+  (use-package anzu
+    :init
+    (global-anzu-mode +1)
+    (anzu-mode +1)
+    :diminish anzu-mode)
 #+END_SRC
 
 
