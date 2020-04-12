@@ -253,10 +253,23 @@ counsel enhances =ivy= versions of emacs commands
 
 ** hydra
 
-present menu for =ivy= commands
+*** present menu for =ivy= commands
 
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-hydra)
+#+END_SRC
+
+*** =major-mode-hydra= binds a single key to open a context sensitive hydra based on current major mode. Hydras can be defined in =use-package= definitions via the =:mode-hydra= integration
+
+#+BEGIN_SRC emacs-lisp
+  (use-package major-mode-hydra
+    :bind
+    ("C-M-SPC" . major-mode-hydra)
+    :config
+    (major-mode-hydra-define org-mode
+      ()
+      ("Tools"
+       (("l" org-lint "lint")))))
 #+END_SRC
 
 
