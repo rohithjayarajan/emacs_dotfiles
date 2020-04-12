@@ -183,6 +183,16 @@
     (which-key-mode))
 #+END_SRC
 
+** UTF-8 Encoding
+
+#+BEGIN_SRC emacs-lisp
+  (setq locale-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+#+END_SRC
+
 
 * Security
 
@@ -528,7 +538,8 @@ Turn on the clock globally
 #+END_SRC
 
 
-* Lines
+* Programming Mode
+
 
 ** Line Numbers in Programming
 
@@ -541,6 +552,12 @@ Relative line numbering in programming mode
     :config
       (setq linum-relative-current-symbol "")
       (add-hook 'prog-mode-hook 'linum-relative-mode))
+#+END_SRC
+
+** Highlight Current Line
+
+#+BEGIN_SRC emacs-lisp
+  (when window-system (add-hook 'prog-mode-hook 'hl-line-mode))
 #+END_SRC
 
 
