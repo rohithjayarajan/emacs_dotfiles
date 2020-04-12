@@ -159,6 +159,7 @@
 #+BEGIN_SRC emacs-lisp
   (use-package beacon
     :ensure t
+    :diminish beacon-mode
     :init
     (beacon-mode 1))
 #+END_SRC
@@ -170,6 +171,7 @@
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
     :ensure t
+    :diminish which-key-mode
     :init
     (which-key-mode))
 #+END_SRC
@@ -420,6 +422,118 @@
               (setq git-gutter+-modified-sign "==")
               (setq git-gutter+-added-sign "++")
               (setq git-gutter+-deleted-sign "--")))
+#+END_SRC
+
+
+* Search
+
+** avy
+
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :ensure t
+    :bind
+      ("M-s" . avy-goto-char))
+#+END_SRC
+
+
+* Parentheses
+
+** Show Parentheses
+
+#+BEGIN_SRC emacs-lisp
+  (show-paren-mode 1)
+#+END_SRC
+
+
+* Modeline
+
+** Spaceline
+
+Enable spaceline
+
+#+BEGIN_SRC emacs-lisp
+  (use-package spaceline
+    :ensure t
+    :config
+    (require 'spaceline-config)
+      (setq spaceline-buffer-encoding-abbrev-p nil)
+      (setq spaceline-line-column-p nil)
+      (setq spaceline-line-p nil)
+      (setq powerline-default-separator (quote arrow))
+      (spaceline-spacemacs-theme))
+#+END_SRC
+
+** No Separator
+
+#+BEGIN_SRC emacs-lisp
+  (setq powerline-default-separator nil)
+#+END_SRC
+
+** Cursor Position
+
+Show the current line and column for your cursor
+
+#+BEGIN_SRC emacs-lisp
+  (setq line-number-mode t)
+  (setq column-number-mode t)
+#+END_SRC
+
+** Clock
+
+*** Time format
+
+#+BEGIN_SRC emacs-lisp
+  (setq display-time-24hr-format nil)
+  (setq display-time-format "%H:%M - %d %B %Y")
+#+END_SRC
+
+*** Enabling the mode
+
+Turn on the clock globally
+
+#+BEGIN_SRC emacs-lisp
+  (display-time-mode 1)
+#+END_SRC
+
+** Battery Indicator 
+
+#+BEGIN_SRC emacs-lisp
+  (use-package fancy-battery
+    :ensure t
+    :config
+      (setq fancy-battery-show-percentage t)
+      (setq battery-update-interval 15)
+      (if window-system
+        (fancy-battery-mode)
+        (display-battery-mode)))
+#+END_SRC
+
+** System monitor
+
+ Toggle symon on and off with =Super + m=.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package symon
+    :ensure t
+    :bind
+    ("s-m" . symon-mode))
+#+END_SRC
+
+
+* Lines
+
+** Line Numbers in Programming
+
+Relative line numbering in programming mode
+
+#+BEGIN_SRC emacs-lisp
+  (use-package linum-relative
+    :ensure t
+    :diminish linum-relative-mode
+    :config
+      (setq linum-relative-current-symbol "")
+      (add-hook 'prog-mode-hook 'linum-relative-mode))
 #+END_SRC
 
 
