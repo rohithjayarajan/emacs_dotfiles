@@ -465,6 +465,44 @@ counsel enhances =ivy= versions of emacs commands
   (key-chord-define evil-insert-state-map (kbd "hh") 'evil-normal-state)
 #+END_SRC
 
+*** Map =kt= to Insert Line Below
+
+Function to insert line below
+
+#+BEGIN_SRC emacs-lisp
+  (defun insert-line-below ()
+    "Insert an empty line below the current line."
+    (interactive)
+    (save-excursion
+      (end-of-line)
+      (open-line 1)))
+#+END_SRC
+
+Mapping
+
+#+BEGIN_SRC emacs-lisp
+  (key-chord-define evil-normal-state-map (kbd "kt") 'insert-line-below)
+#+END_SRC
+
+*** Map =kc= to Insert Line Above
+
+Function to insert line above
+
+#+BEGIN_SRC emacs-lisp
+  (defun insert-line-above ()
+    "Insert an empty line above the current line."
+    (interactive)
+    (save-excursion
+      (end-of-line 0)
+      (open-line 1)))
+#+END_SRC
+
+Mapping
+
+#+BEGIN_SRC emacs-lisp
+  (key-chord-define evil-normal-state-map (kbd "kc") 'insert-line-above)
+#+END_SRC
+
 
 * Project Management
 
@@ -511,7 +549,7 @@ counsel enhances =ivy= versions of emacs commands
               (setq git-gutter+-deleted-sign "--")))
 #+END_SRC
 
-*** Navigation Bar
+** Navigation Bar
 
 #+BEGIN_SRC emacs-lisp
   (use-package speedbar)
