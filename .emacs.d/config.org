@@ -820,6 +820,16 @@ Relative line numbering in programming mode
 
 ** Python
 
+*** Anaconda mode
+
+#+BEGIN_SRC emacs-lisp
+  (use-package anaconda-mode
+    :ensure t
+    :config
+    (add-hook 'python-mode-hook 'anaconda-mode)
+    (add-hook 'python-mode-hook 'anaconda-eldoc-mode))
+#+END_SRC
+
 
 * Apps
 
