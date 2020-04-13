@@ -1061,6 +1061,17 @@ uses a clang-format file stored in /plugins/cpp-plugins
     :config (matlab-cedet-setup))
 #+END_SRC
 
+** makdown
+
+#+BEGIN_SRC emacs-lisp
+  (use-package markdown-mode
+    :ensure t
+    :mode ("\\.md\\'" "\\.markdown\\'")
+    :config
+    (define-key markdown-mode-map (kbd "M-p") nil)
+    (define-key markdown-mode-map (kbd "M-n") nil))
+#+END_SRC
+
 ** protobuf
 
 #+BEGIN_SRC emacs-lisp
@@ -1076,6 +1087,7 @@ uses a clang-format file stored in /plugins/cpp-plugins
       (use-package protobuf-mode
         :mode ("\\.proto\\'")))
 #+END_SRC
+
 ** Python
 
 *** Anaconda mode
