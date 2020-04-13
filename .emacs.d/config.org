@@ -630,6 +630,7 @@ Mapping
     (global-undo-tree-mode))
 #+END_SRC
 
+
 * Navigation 
 
 ** avy
@@ -846,6 +847,22 @@ Relative line numbering in programming mode
 #+END_SRC
 
 
+** whitespace
+
+#+BEGIN_SRC emacs-lisp
+  (use-package whitespace
+    :ensure t
+    :diminish global-whitespace-mode
+    :init
+    (eval-when-compile
+        ;; Silence missing function warnings
+        (declare-function global-whitespace-mode "whitespace.el"))
+    :config
+    (setq whitespace-style '(lines-tail trailing tabs tab-mark))
+    ;; Turn on whitespace mode globally.
+    (global-whitespace-mode t))
+#+END_SRC
+
 
 * Languages
 
@@ -855,9 +872,15 @@ Relative line numbering in programming mode
 
 #+BEGIN_SRC emacs-lisp
   (use-package modern-cpp-font-lock
-    :ensure t)
-
-  (modern-c++-font-lock-global-mode t)
+    :ensure t
+    :diminish modern-c++-font-lock-mode
+    :init
+    (eval-when-compile
+        ;; Silence missing function warnings
+      (declare-function modern-c++-font-lock-global-mode
+                        "modern-cpp-font-lock.el"))
+    :config
+    (modern-c++-font-lock-global-mode t))
 #+END_SRC
 
 *** irony
@@ -1049,3 +1072,4 @@ Various elements in this config have been inspired or used from the below resour
 - https://github.com/daedreth/UncleDavesEmacs
 - https://jamiecollinson.com/blog/my-emacs-config/
 - https://pages.sachachua.com/.emacs.d/Sacha.html
+- https://github.com/nilsdeppe/MyEnvironment
