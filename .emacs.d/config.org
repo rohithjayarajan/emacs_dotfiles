@@ -913,6 +913,20 @@ Relative line numbering in programming mode
     :after flyspell)
 #+END_SRC
 
+** bazel
+
+#+BEGIN_SRC emacs-lisp
+  (if (not (file-directory-p "~/.emacs.d/plugins/bazel/"))
+      (make-directory "~/.emacs.d/plugins/bazel/"))
+  (if (not (file-exists-p "~/.emacs.d/plugins/bazel/bazel-mode.el"))
+      (url-copy-file
+       "https://raw.githubusercontent.com/codesuki/bazel-mode/master/bazel-mode.el"
+       "~/.emacs.d/plugins/bazel/bazel-mode.el"))
+  (if (file-exists-p "~/.emacs.d/plugins/bazel/bazel-mode.el")
+      (use-package bazel-mode
+        :mode ("BUILD" "\\.bazel\\'" "\\.bzl'" "WORKSPACE\\'")))
+#+END_SRC
+
 
 * Languages
 
@@ -1050,8 +1064,8 @@ uses a clang-format file stored in /plugins/cpp-plugins
 ** protobuf
 
 #+BEGIN_SRC emacs-lisp
-  (if (not (file-directory-p "~/.emacs.d/plugins/protobuf"))
-      (make-directory "~/.emacs.d/plugins/protobuf"))
+  (if (not (file-directory-p "~/.emacs.d/plugins/protobuf/"))
+      (make-directory "~/.emacs.d/plugins/protobuf/"))
 
   (if (not (file-exists-p "~/.emacs.d/plugins/protobuf/protobuf-mode.el"))
       (url-copy-file
