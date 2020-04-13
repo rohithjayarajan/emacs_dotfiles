@@ -737,8 +737,7 @@ Turn on the clock globally
 #+END_SRC
 
 
-* Programming Mode
-
+* Editing & Programming Settings
 ** Line Numbers in Programming
 
 Relative line numbering in programming mode
@@ -824,16 +823,22 @@ Relative line numbering in programming mode
   (use-package company
     :ensure t
     :diminish company-mode
-    :init
-    (setq company-clang-executable "/usr/bin/clang-3.5")
     :config
+    ;; Zero delay when pressing tab
     (setq company-idle-delay 0)
-    (setq company-minimum-prefix-length 3))
+    (add-hook 'after-init-hook 'global-company-mode)
+    ;; remove unused backends
+    (setq company-backends (delete 'company-semantic company-backends))
+    (setq company-backends (delete 'company-eclim company-backends))
+    (setq company-backends (delete 'company-xcode company-backends))
+    (setq company-backends (delete 'company-clang company-backends))
+    (setq company-backends (delete 'company-bbdb company-backends))
+    (setq company-backends (delete 'company-oddmuse company-backends)))
+#+END_SRC
 
-  (add-hook 'after-init-hook 'global-company-mode)
+*** company-box
 
-  (with-eval-after-load 'company
-    (add-to-list 'company-backends 'company-ghc))
+#+BEGIN_SRC emacs-lisp
 
 #+END_SRC
 
@@ -845,7 +850,6 @@ Relative line numbering in programming mode
     :commands (iedit-mode)
     :bind* (("C-c ;" . iedit-mode)))
 #+END_SRC
-
 
 ** whitespace
 
@@ -861,6 +865,52 @@ Relative line numbering in programming mode
     (setq whitespace-style '(lines-tail trailing tabs tab-mark))
     ;; Turn on whitespace mode globally.
     (global-whitespace-mode t))
+#+END_SRC
+
+** hungry delete
+
+#+BEGIN_SRC emacs-lisp
+  (use-package hungry-delete
+    :ensure t
+    :diminish hungry-delete-mode
+    :init
+    (eval-when-compile
+      ;; Silence missing function warnings
+      (declare-function global-hungry-delete-mode "hungry-delete.el"))
+    :config
+    (global-hungry-delete-mode t))
+#+END_SRC
+
+** flyspell
+
+#+BEGIN_SRC emacs-lisp
+  (use-package flyspell
+    :ensure t
+    :diminish flyspell-mode
+    :hook ((text-mode . flyspell-mode)
+           (prog-mode . flyspell-prog-mode)
+           (org-mode . flyspell-mode))
+    :init
+    (eval-when-compile
+      ;; Silence missing function warnings
+      (declare-function flyspell-goto-next-error "flyspell.el")
+      (declare-function flyspell-mode "flyspell.el")
+      (declare-function flyspell-prog-mode "flyspell.el"))
+    (setq flyspell-issue-welcome-flag nil)
+    :config
+    (defun flyspell-check-next-highlighted-word ()
+      "Custom function to spell check next highlighted word."
+      (interactive)
+      (flyspell-goto-next-error)
+      (ispell-word))
+
+    (global-set-key (kbd "<f7>") 'flyspell-buffer)
+    (global-set-key (kbd "<f8>") 'flyspell-correct-previous)
+    (global-set-key (kbd "<f9>") 'flyspell-correct-next))
+
+  (use-package flyspell-correct-ivy
+    :ensure t
+    :after flyspell)
 #+END_SRC
 
 
