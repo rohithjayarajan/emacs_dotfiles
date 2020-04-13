@@ -616,6 +616,19 @@ Mapping
     (sr-speedbar-open)))
 #+END_SRC
 
+** Undo Tree
+
+#+BEGIN_SRC emacs-lisp
+  (use-package undo-tree
+    :ensure t
+    :diminish undo-tree-mode
+    :defer 1
+    :config
+    (eval-when-compile
+      ;; Silence missing function warnings
+      (declare-function global-undo-tree-mode "undo-tree.el"))
+    (global-undo-tree-mode))
+#+END_SRC
 
 * Navigation 
 
@@ -837,6 +850,15 @@ Relative line numbering in programming mode
 * Languages
 
 ** C / C++
+
+*** Syntax Highlighting
+
+#+BEGIN_SRC emacs-lisp
+  (use-package modern-cpp-font-lock
+    :ensure t)
+
+  (modern-c++-font-lock-global-mode t)
+#+END_SRC
 
 *** irony
 
