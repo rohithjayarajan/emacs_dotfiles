@@ -1028,6 +1028,40 @@ uses a clang-format file stored in /plugins/cpp-plugins
            auto-mode-alist)))
 #+END_SRC
 
+** json
+
+#+BEGIN_SRC emacs-lisp
+  (use-package json-mode
+    :ensure t
+    :mode ("\\.json\\'" "\\.imp\\'"))
+#+END_SRC
+
+** MATLAB
+
+*** use MATLAB mode
+
+#+BEGIN_SRC emacs-lisp
+  (use-package matlab-mode
+    :ensure t
+    :defer t
+    :config (matlab-cedet-setup))
+#+END_SRC
+
+** protobuf
+
+#+BEGIN_SRC emacs-lisp
+  (if (not (file-directory-p "~/.emacs.d/plugins/protobuf"))
+      (make-directory "~/.emacs.d/plugins/protobuf"))
+
+  (if (not (file-exists-p "~/.emacs.d/plugins/protobuf/protobuf-mode.el"))
+      (url-copy-file
+       "https://raw.githubusercontent.com/google/protobuf/master/editors/protobuf-mode.el"
+       "~/.emacs.d/plugins/protobuf/protobuf-mode.el"))
+
+  (if (file-exists-p "~/.emacs.d/plugins/protobuf/protobuf-mode.el")
+      (use-package protobuf-mode
+        :mode ("\\.proto\\'")))
+#+END_SRC
 ** Python
 
 *** Anaconda mode
@@ -1040,15 +1074,12 @@ uses a clang-format file stored in /plugins/cpp-plugins
     (add-hook 'python-mode-hook 'anaconda-eldoc-mode))
 #+END_SRC
 
-** MATLAB
-
-*** use MATLAB mode
+** yaml
 
 #+BEGIN_SRC emacs-lisp
-  (use-package matlab-mode
+  (use-package yaml-mode
     :ensure t
-    :defer t
-    :config (matlab-cedet-setup))
+    :mode ("\\.yml\\'" "\\.yaml\\'"))
 #+END_SRC
 
 
