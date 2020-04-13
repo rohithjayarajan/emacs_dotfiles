@@ -8,10 +8,10 @@
   (require 'package)
 
   (setq package-enable-at-startup nil)
-  (setq package-archives '(("gnu" . "http://mirrors.163.com/elpa/gnu/")
+  (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
                            ("melpa" . "https://melpa.org/packages/")
-                           ("melpa stable" . "http://stable.melpa.org/packages/")
-                           ("org" . "http://orgmode.org/elpa/")))
+                           ("melpa stable" . "https://stable.melpa.org/packages/")
+                           ("org" . "https://orgmode.org/elpa/")))
 
   (package-initialize)
 #+END_SRC
@@ -771,22 +771,35 @@ Relative line numbering in programming mode
     (add-hook 'prog-mode-hook 'rainbow-mode))
 #+END_SRC
 
-** yasnippet
-
-#+BEGIN_SRC emacs-lisp
-  (use-package yasnippet
-    :ensure t
-    :diminish yas-minor-mode
-    :init (yas-global-mode t))
-#+END_SRC
-
 ** flycheck
 
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck
     :ensure t
     :diminish flycheck-mode
-    :init (global-flycheck-mode t))
+    :config
+    (add-hook 'after-init-hook 'global-flycheck-mode))
+
+  (add-hook 'c++-mode-hook
+            (lambda () (setq flycheck-clang-language-standard "c++11")))
+#+END_SRC
+
+** yasnippet
+
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :ensure t)
+#+END_SRC
+
+** yasnippet-snippets
+
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet-snippets
+    :ensure t)
+
+  (yas-reload-all)
+
+  (yas-global-mode 1)
 #+END_SRC
 
 ** company
@@ -797,17 +810,54 @@ Relative line numbering in programming mode
   (use-package company
     :ensure t
     :diminish company-mode
+    :init
+    (setq company-clang-executable "/usr/bin/clang-3.5")
     :config
     (setq company-idle-delay 0)
     (setq company-minimum-prefix-length 3))
 
   (add-hook 'after-init-hook 'global-company-mode)
+
+  (with-eval-after-load 'company
+    (add-to-list 'company-backends 'company-ghc))
+
 #+END_SRC
+
+** iedit
+
+#+BEGIN_SRC emacs-lisp
+  (use-package iedit
+    :ensure t
+    :commands (iedit-mode)
+    :bind* (("C-c ;" . iedit-mode)))
+#+END_SRC
+
 
 
 * Languages
 
 ** C / C++
+
+*** irony
+
+#+BEGIN_SRC emacs-lisp
+  (use-package irony
+    :ensure t
+    :config
+    (add-hook 'c++-mode-hook 'irony-mode)
+    (add-hook 'c-mode-hook 'irony-mode)
+    (add-hook 'objc-mode-hook 'irony-mode)
+    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+#+END_SRC
+
+*** add =company-irony= to company backends
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company-irony)
+
+  (eval-after-load 'company
+    '(add-to-list 'company-backends 'company-irony))
+#+END_SRC
 
 *** company c / c++ headers
 
@@ -838,6 +888,51 @@ uses a clang-format file stored in /plugins/cpp-plugins
                                   'clang-format-buffer))))
 #+END_SRC
 
+*** flycheck
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'c-mode-hook 'flycheck-mode)
+  (add-hook 'c++-mode-hook 'flycheck-mode)
+#+END_SRC
+
+*** google c style and cpplint
+
+#+BEGIN_SRC emacs-lisp
+  (use-package google-c-style
+    :ensure t
+    :defer t
+    :init
+    (add-hook 'c-mode-common-hook 'google-set-c-style)
+    (add-hook 'c-mode-common-hook 'google-make-newline-indent)
+
+    (add-hook 'c++-mode-common-hook 'google-set-c-style)
+    (add-hook 'c++-mode-common-hook 'google-make-newline-indent)
+
+    ;; == google style guide ==
+    (load "~/.emacs.d/plugins/cpp-plugins/flycheck-google-cpplint")
+    (add-to-list 'flycheck-checkers 'c/c++-googlelint)
+    (custom-set-variables
+     '(flycheck-c/c++-googlelint-executable "~/.emacs.d/plugins/cpp-plugins/cpplint.py")
+    ;; This requires that google cpplint be installed
+    ;; See: https://github.com/flycheck/flycheck-google-cpplint
+    (flycheck-add-next-checker 'c/c++-cppcheck 'c/c++-googlelint)))
+#+END_SRC
+
+*** CMake mode
+
+#+BEGIN_SRC emacs-lisp
+  (use-package cmake-mode
+    :ensure t
+    :defer t
+    :init
+    ; Add cmake listfile names to the mode list.
+    (setq auto-mode-alist
+          (append
+           '(("CMakeLists\\.txt\\'" . cmake-mode))
+           '(("\\.cmake\\'" . cmake-mode))
+           auto-mode-alist)))
+#+END_SRC
+
 ** Python
 
 *** Anaconda mode
@@ -848,6 +943,17 @@ uses a clang-format file stored in /plugins/cpp-plugins
     :config
     (add-hook 'python-mode-hook 'anaconda-mode)
     (add-hook 'python-mode-hook 'anaconda-eldoc-mode))
+#+END_SRC
+
+** MATLAB
+
+*** use MATLAB mode
+
+#+BEGIN_SRC emacs-lisp
+  (use-package matlab-mode
+    :ensure t
+    :defer t
+    :config (matlab-cedet-setup))
 #+END_SRC
 
 
@@ -896,6 +1002,21 @@ uses a clang-format file stored in /plugins/cpp-plugins
 	  :bind ("C-c g" . writegood-mode)
 	  :config
 	  (add-to-list 'writegood-weasel-words "actionable"))
+#+END_SRC
+
+** Proselint
+
+#+BEGIN_SRC emacs-lisp
+  (flycheck-define-checker proselint
+                           "A linter for prose."
+                           :command ("proselint" source-inplace)
+                           :error-patterns
+                           ((warning line-start (file-name) ":" line ":" column ": "
+                                     (id (one-or-more (not (any " "))))
+                                     (message (one-or-more not-newline)
+                                              (zero-or-more "\n" (any " ") (one-or-more not-newline)))
+                                     line-end))
+                           :modes (text-mode markdown-mode gfm-mode org-mode))
 #+END_SRC
 
 
