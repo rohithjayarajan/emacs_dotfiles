@@ -1065,6 +1065,11 @@ uses a clang-format file stored in /plugins/cpp-plugins
 
 *** CMake mode
 
+
+#+BEGIN_SRC emacs-lisp
+  (use-package cmake-ide)
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (use-package cmake-mode
     :ensure t
@@ -1078,6 +1083,26 @@ uses a clang-format file stored in /plugins/cpp-plugins
            auto-mode-alist)))
 #+END_SRC
 
+*** rtags
+
+#+BEGIN_SRC emacs-lisp
+  (load "~/.emacs.d/plugins/rtags/src/rtags")
+  (cmake-ide-setup)
+
+  (add-hook 'c-mode-hook 'rtags-start-process-unless-running)
+  (add-hook 'c++-mode-hook 'rtags-start-process-unless-running)
+
+  (use-package rtags
+    :ensure t
+    :hook (c++-mode . rtags-start-process-unless-running)
+    :config (setq rtags-completions-enabled t
+                  rtags-path "~/.emacs.d/plugins/rtags/src/rtags.el"
+                  rtags-rc-binary-name "~/.emacs.d/plugins/rtags/bin/rc"
+                  rtags-use-ivy t
+                  rtags-rdm-binary-name "~/.emacs.d/plugins/rtags/bin/rdm"))
+
+  (setq rtags-display-result-backend 'ivy)
+#+END_SRC
 
 ** json
 
