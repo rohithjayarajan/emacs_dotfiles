@@ -214,6 +214,14 @@
   (prefer-coding-system 'utf-8)
 #+END_SRC
 
+** async processing
+
+#+BEGIN_SRC emacs-lisp
+  (use-package async
+    :defer t
+    :config (require 'async-bytecomp))
+#+END_SRC
+
 
 * Security
 
@@ -281,6 +289,13 @@ counsel enhances =ivy= versions of emacs commands
   (use-package ivy-prescient
     :config
     (ivy-prescient-mode t))
+#+END_SRC
+
+** smex
+
+#+BEGIN_SRC emacs-lisp
+  (use-package smex
+            :ensure t)
 #+END_SRC
 
 ** swiper
@@ -727,7 +742,7 @@ Turn on the clock globally
 
 ** System monitor
 
- Toggle symon on and off with =Super + m=.
+ Toggle symon on and off with =Super + t=.
 
 #+BEGIN_SRC emacs-lisp
   (use-package symon
@@ -791,7 +806,8 @@ Relative line numbering in programming mode
     :ensure t
     :diminish flycheck-mode
     :config
-    (add-hook 'after-init-hook 'global-flycheck-mode))
+    (add-hook 'after-init-hook 'global-flycheck-mode)
+    (setq flycheck-check-syntax-automatically '(save mode-enabled)))
 
   (add-hook 'c++-mode-hook
             (lambda () (setq flycheck-clang-language-standard "c++11")))
@@ -801,7 +817,9 @@ Relative line numbering in programming mode
 
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
-    :ensure t)
+    :ensure t
+    :diminish yas-minor-mode
+    :init (yas-global-mode t))
 #+END_SRC
 
 ** yasnippet-snippets
@@ -821,19 +839,34 @@ Relative line numbering in programming mode
 
 #+BEGIN_SRC emacs-lisp
   (use-package company
-    :ensure t
+    :commands (global-company-mode company-mode)
     :diminish company-mode
+    :custom
+    ;; no delay no autocomplete
+    (company-idle-delay 0)
+    (company-minimum-prefix-length 2)
+    (company-tooltip-limit 20)
+
+    :preface
+    ;; enable yasnippet everywhere
+    (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
+    (defun company-mode/backend-with-yas (backend)
+      (if (or
+           (not company-mode/enable-yas)
+           (and (listp backend) (member 'company-yasnippet backend)))
+          backend
+        (append (if (consp backend) backend (list backend))
+                '(:with company-yasnippet))))
+
+    :init (global-company-mode t)
     :config
-    ;; Zero delay when pressing tab
-    (setq company-idle-delay 0)
-    (add-hook 'after-init-hook 'global-company-mode)
     ;; remove unused backends
-    (setq company-backends (delete 'company-semantic company-backends))
-    (setq company-backends (delete 'company-eclim company-backends))
-    (setq company-backends (delete 'company-xcode company-backends))
-    (setq company-backends (delete 'company-clang company-backends))
-    (setq company-backends (delete 'company-bbdb company-backends))
-    (setq company-backends (delete 'company-oddmuse company-backends)))
+    (delete 'company-semantic company-backends)
+    (delete 'company-eclim company-backends)
+    (delete 'company-xcode company-backends)
+    (delete 'company-clang company-backends)
+    (delete 'company-bbdb company-backends)
+    (delete 'company-oddmuse company-backends))
 #+END_SRC
 
 *** company-box
@@ -842,6 +875,15 @@ Relative line numbering in programming mode
   (use-package company-box
     :ensure t
     :hook (company-mode . company-box-mode))
+#+END_SRC
+
+** company statistics
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company-statistics
+    :after company
+    :commands company-statistics-mode
+    :init (company-statistics-mode t))
 #+END_SRC
 
 ** iedit
@@ -929,6 +971,15 @@ Relative line numbering in programming mode
         :mode ("BUILD" "\\.bazel\\'" "\\.bzl'" "WORKSPACE\\'")))
 #+END_SRC
 
+** highlight todo, fixme, etc
+
+#+BEGIN_SRC emacs-lisp
+  (use-package fic-mode
+    :diminish fic-mode
+    :commands turn-on-fic-mode
+    :config (add-hook 'prog-mode-hook 'turn-on-fic-mode))
+#+END_SRC
+
 
 * Languages
 
@@ -947,27 +998,6 @@ Relative line numbering in programming mode
                         "modern-cpp-font-lock.el"))
     :config
     (modern-c++-font-lock-global-mode t))
-#+END_SRC
-
-*** irony
-
-#+BEGIN_SRC emacs-lisp
-  (use-package irony
-    :ensure t
-    :config
-    (add-hook 'c++-mode-hook 'irony-mode)
-    (add-hook 'c-mode-hook 'irony-mode)
-    (add-hook 'objc-mode-hook 'irony-mode)
-    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
-#+END_SRC
-
-*** add =company-irony= to company backends
-
-#+BEGIN_SRC emacs-lisp
-  (use-package company-irony)
-
-  (eval-after-load 'company
-    '(add-to-list 'company-backends 'company-irony))
 #+END_SRC
 
 *** company c / c++ headers
@@ -1010,15 +1040,6 @@ uses a clang-format file stored in /plugins/cpp-plugins
   (add-hook 'c++-mode-hook 'flycheck-mode)
 #+END_SRC
 
-**** flycheck-irony
-
-#+BEGIN_SRC emacs-lisp
-  (use-package flycheck-irony
-    :ensure t
-    :hook (flycheck-mode . flycheck-irony-setup))
-#+END_SRC
-
-
 *** google c style and cpplint
 
 #+BEGIN_SRC emacs-lisp
@@ -1056,6 +1077,7 @@ uses a clang-format file stored in /plugins/cpp-plugins
            '(("\\.cmake\\'" . cmake-mode))
            auto-mode-alist)))
 #+END_SRC
+
 
 ** json
 
