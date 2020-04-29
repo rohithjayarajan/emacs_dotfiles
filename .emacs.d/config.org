@@ -1193,15 +1193,45 @@ uses a clang-format file stored in /plugins/cpp-plugins
 
 ** Python
 
-*** Anaconda mode
+*** elpy
 
 #+BEGIN_SRC emacs-lisp
-  (use-package anaconda-mode
+  (use-package elpy
     :ensure t
-    :config
-    (add-hook 'python-mode-hook 'anaconda-mode)
-    (add-hook 'python-mode-hook 'anaconda-eldoc-mode))
+    :init
+    (elpy-enable))
 #+END_SRC
+
+*** flycheck
+
+#+BEGIN_SRC emacs-lisp
+  ;; Enable Flycheck
+  (when (require 'flycheck nil t)
+    (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+    (add-hook 'elpy-mode-hook 'flycheck-mode))
+#+END_SRC
+
+*** pep8
+
+#+BEGIN_SRC emacs-lisp
+  (use-package py-autopep8
+    :hook
+    (elpy-mode . py-autopep8-enable-on-save))
+#+END_SRC
+
+*** ipython
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ein)
+
+  ;; Use IPython for REPL
+  (setq python-shell-interpreter "jupyter"
+        python-shell-interpreter-args "console --simple-prompt"
+        python-shell-prompt-detect-failure-warning nil)
+  (add-to-list 'python-shell-completion-native-disabled-interpreters
+               "jupyter")
+#+END_SRC
+
 
 ** yaml
 
