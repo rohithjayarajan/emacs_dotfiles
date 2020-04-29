@@ -355,23 +355,35 @@ counsel enhances =ivy= versions of emacs commands
 
 * Window
 
-** Switch Windows
+** ace window
 
 #+BEGIN_SRC emacs-lisp
-  (use-package switch-window
+  (use-package ace-window
+    :init
+    (setq aw-scope 'frame ; limit to single frame (useful when using exwm)
+          aw-keys '(?a ?o ?e ?u ?i ?d ?h ?t ?n))
+    :bind
+    ("C-x o" . ace-window))
+
+  (custom-set-faces
+   '(aw-leading-char-face
+     ((t
+       (:foreground "deep sky blue" :bold t :height 5.0)))))
+#+END_SRC
+
+** auto-resize splits
+
+#+BEGIN_SRC emacs-lisp
+  (use-package golden-ratio
     :ensure t
     :config
-      (setq switch-window-input-style 'minibuffer)
-      (setq switch-window-increase 4)
-      (setq switch-window-threshold 2)
-      (setq switch-window-shortcut-style 'qwerty)
-      (setq switch-window-qwerty-shortcuts
-          '("a" "o" "e" "u" "h" "t" "n" "s" "c"))
-    :bind
-      ([remap other-window] . switch-window))
+    (golden-ratio-mode 1))
+
+  (add-to-list 'golden-ratio-extra-commands 'ace-window)
 #+END_SRC
 
 ** Follow Splits
+
 
 *** Vertical Splits
 
