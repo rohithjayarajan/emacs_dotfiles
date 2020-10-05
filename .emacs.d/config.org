@@ -163,7 +163,8 @@
 
   (save-place-mode)
 
-  (global-so-long-mode)
+  (when (require 'so-long nil :noerror)
+   (global-so-long-mode 1))
 #+END_SRC
 
 ** GUI
@@ -600,6 +601,39 @@ Mapping
 
 * Project Management
 
+** Git
+
+*** Install Magit
+
+#+BEGIN_SRC emacs-lisp
+  (use-package magit 
+    :ensure t
+    :bind (("C-x g" . magit-status)
+           ("C-x M-g" . magit-blame))
+    :init (setq magit-auto-revert-mode nil)
+    :config (add-hook 'magit-mode-hook 'hl-line-mode))
+#+END_SRC
+
+*** Display Line Changes
+
+#+BEGIN_SRC emacs-lisp
+  (use-package git-gutter
+    :ensure t
+    :defer 5
+    :diminish git-gutter-mode
+    :config (progn
+              (global-git-gutter-mode)
+              (setq git-gutter:modified-sign "  ")
+              (setq git-gutter:added-sign "++")
+              (setq git-gutter:deleted-sign "--")
+              (set-face-background 'git-gutter:deleted "#990A1B")
+              (set-face-foreground 'git-gutter:deleted "#990A1B")
+              (set-face-background 'git-gutter:modified "#00736F")
+              (set-face-foreground 'git-gutter:modified "#00736F")
+              (set-face-background 'git-gutter:added "#546E00")
+              (set-face-foreground 'git-gutter:added "#546E00")))
+#+END_SRC
+
 ** Projectile
 
 #+BEGIN_SRC emacs-lisp
@@ -617,38 +651,12 @@ Mapping
     (setq projectile-completion-system 'ivy))
 #+END_SRC
 
-** Git
-
-*** Install Magit
-
-#+BEGIN_SRC emacs-lisp
-  (use-package magit 
-    :ensure t
-    :bind (("C-x g" . magit-status)
-           ("C-x M-g" . magit-blame))
-    :init (setq magit-auto-revert-mode nil)
-    :config (add-hook 'magit-mode-hook 'hl-line-mode))
-#+END_SRC
-
-*** Display Line Changes
-
-#+BEGIN_SRC emacs-lisp
-  (use-package git-gutter+
-    :init (global-git-gutter+-mode)
-    :diminish git-gutter+-mode
-    :defer 5
-    :config (progn
-              (setq git-gutter+-modified-sign "==")
-              (setq git-gutter+-added-sign "++")
-              (setq git-gutter+-deleted-sign "--")))
-#+END_SRC
-
 ** Navigation Bar
 
 #+BEGIN_SRC emacs-lisp
   (use-package treemacs
     :bind
-    (("C-c t" . treemacs))
+    (("C-c t" . treemacs)))
 
   (use-package treemacs-projectile
     :after treemacs projectile)
@@ -1314,3 +1322,4 @@ Various elements in this config have been inspired or used from the below resour
 - https://jamiecollinson.com/blog/my-emacs-config/
 - https://pages.sachachua.com/.emacs.d/Sacha.html
 - https://github.com/nilsdeppe/MyEnvironment
+  
