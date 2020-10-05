@@ -86,19 +86,25 @@
 
 ** Themes
 
-*** Current favorite theme solarized-dark-high-contrast
+*** Current favorite theme jetbrains-darcula-theme 
 
 #+BEGIN_SRC emacs-lisp
-  (use-package solarized-theme
-    :ensure t
-    :init (load-theme 'solarized-dark-high-contrast t))
+  (use-package jetbrains-darcula-theme
+    :config
+    (load-theme 'jetbrains-darcula t))
 #+END_SRC
 
 ** Font
 
 #+BEGIN_SRC emacs-lisp
-  (set-frame-font "DejaVu Sans Mono-16" t t)
-  (set-fontset-font t 'unicode "STIXGeneral" nil 'prepend)
+  (defconst rj/default-font-size 180)
+
+  ;; Set default font
+  (set-face-attribute 'default nil
+                      :family "Source Code Pro"
+                      :height rj/default-font-size
+                      :weight 'normal
+                      :width 'normal)
 #+END_SRC
 
 ** Fullscreen on Startup
@@ -139,6 +145,27 @@
   (setq inhibit-startup-message t)
 #+END_SRC
 
+** General
+
+#+BEGIN_SRC emacs-lisp
+  (setq-default
+   initial-major-mode 'fundamental-mode
+   initial-scratch-message nil         
+   create-lockfiles nil                
+   confirm-kill-processes nil          
+   backup-by-copying t                 
+   require-final-newline t             
+   delete-old-versions t               
+   revert-without-query '(".*")
+   )       
+
+  (global-auto-revert-mode)
+
+  (save-place-mode)
+
+  (global-so-long-mode)
+#+END_SRC
+
 ** GUI
 
 *** Disable beeping, gui popups. Echo faster keystrokes, kill process, enable all commands
@@ -152,7 +179,7 @@
         disabled-command-function nil)    ; enable all commands
 #+END_SRC
 
-*** Hide gui funcionalities
+*** Hide gui functionalities
 
 #+BEGIN_SRC emacs-lisp
   (menu-bar-mode -1)                      ; hide menu-bar
@@ -619,28 +646,14 @@ Mapping
 ** Navigation Bar
 
 #+BEGIN_SRC emacs-lisp
-  (use-package speedbar)
+  (use-package treemacs
+    :bind
+    (("C-c t" . treemacs))
 
-  (use-package sr-speedbar
-    :ensure t
-    :init
-    (set-variable 'sr-speedbar-right-side nil))
+  (use-package treemacs-projectile
+    :after treemacs projectile)
 
-  (use-package projectile-speedbar
-    :ensure t
-    :disabled t)
-
-  (make-face 'speedbar-face)
-  (set-face-font 'speedbar-face "Mono-12")
-  (setq speedbar-mode-hook '(lambda () (buffer-face-set 'speedbar-face)))
-
-  (setq sr-speedbar-width 10)
-
-  (custom-set-variables
-   '(speedbar-show-unknown-files t))
-
-  (add-hook 'emacs-startup-hook (lambda ()
-    (sr-speedbar-open)))
+  (use-package treemacs-evil)
 #+END_SRC
 
 ** Undo Tree
