@@ -58,7 +58,7 @@
                        gc-cons-threshold)))
 #+END_SRC
 
-** Visit Configuration
+** config.org Functions 
 
 *** Quickly edit =~/.emacs.d/config.org=
 
@@ -69,8 +69,6 @@
   (global-set-key (kbd "C-c c e") 'config-visit)
 #+END_SRC
 
-** Reloading Configuration
-   
 *** Simply pressing =Control-c c r= will reload this file, very handy. You can also manually invoke =config-reload=.
 
 #+BEGIN_SRC emacs-lisp
@@ -82,59 +80,6 @@
 #+END_SRC
 
 
-* Emacs Visual
-
-** Themes
-
-*** Current favorite theme jetbrains-darcula-theme 
-
-#+BEGIN_SRC emacs-lisp
-  (use-package jetbrains-darcula-theme
-    :config
-    (load-theme 'jetbrains-darcula t))
-#+END_SRC
-
-** Font
-
-#+BEGIN_SRC emacs-lisp
-  (defconst rj/default-font-size 180)
-
-  ;; Set default font
-  (set-face-attribute 'default nil
-                      :family "Source Code Pro"
-                      :height rj/default-font-size
-                      :weight 'normal
-                      :width 'normal)
-#+END_SRC
-
-** Fullscreen on Startup
-
-#+BEGIN_SRC emacs-lisp
-  (custom-set-variables
-   '(initial-frame-alist (quote ((fullscreen . maximized)))))
-#+END_SRC
-
-** Visually highlight the selected buffer
-
-#+BEGIN_SRC emacs-lisp
-  (use-package dimmer
-    :custom
-    (dimmer-fraction 0.4)
-    (dimmer-exclusion-regexp-list
-           '(".*Minibuf.*"
-             ".*which-key.*"
-             ".*NeoTree.*"
-             ".*Messages.*"
-             ".*Async.*"
-             ".*Warnings.*"
-             ".*LV.*"
-             ".*Ilist.*"))
-    :config
-    (dimmer-configure-which-key)
-    (dimmer-mode t))
-#+END_SRC
-
-
 * Emacs Settings
 
 ** Startup Screen
@@ -143,6 +88,15 @@
 
 #+BEGIN_SRC emacs-lisp
   (setq inhibit-startup-message t)
+#+END_SRC
+
+*** Dashboard
+
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    :ensure t
+    :config
+    (dashboard-setup-startup-hook))
 #+END_SRC
 
 ** General
@@ -166,8 +120,6 @@
   (when (require 'so-long nil :noerror)
    (global-so-long-mode 1))
 #+END_SRC
-
-** GUI
 
 *** Disable beeping, gui popups. Echo faster keystrokes, kill process, enable all commands
 
@@ -250,138 +202,81 @@
     :config (require 'async-bytecomp))
 #+END_SRC
 
-
-* Security
-
-** TLS
+** Themes
 
 #+BEGIN_SRC emacs-lisp
-  (setq gnutls-verify-error t
-	tls-checktrust t)
-#+END_SRC
-
-
-* Terminal
-
-** Set Default Terminal
-
-#+BEGIN_SRC emacs-lisp
-  (defvar rj/terminal-shell "/bin/bash")
-
-  (defadvice ansi-term (before force-bash)
-    (interactive (list rj/terminal-shell)))
-
-  (ad-activate 'ansi-term)
-#+END_SRC
-
-** Keymap for Launching Terminal
-
-#+BEGIN_SRC emacs-lisp
-  (global-set-key (kbd "<s-return>") 'ansi-term)
-#+END_SRC
-
-
-* Command Completion
-
-** ivy
-
-*** install
-
-#+BEGIN_SRC emacs-lisp
-  (use-package ivy
+  (use-package jetbrains-darcula-theme
     :config
-    (ivy-mode t))
+    (load-theme 'jetbrains-darcula t))
 #+END_SRC
 
-*** don't start filters with =^=
+** Font
 
 #+BEGIN_SRC emacs-lisp
-  (setq ivy-initial-inputs-alist nil)
+  (defconst rj/default-font-size 180)
+
+  ;; Set default font
+  (set-face-attribute 'default nil
+                      :family "Source Code Pro"
+                      :height rj/default-font-size
+                      :weight 'normal
+                      :width 'normal)
 #+END_SRC
 
-** counsel
-
-counsel enhances =ivy= versions of emacs commands
+** Fullscreen on Startup
 
 #+BEGIN_SRC emacs-lisp
-  (use-package counsel
-    :bind (("M-x" . counsel-M-x)))
-#+END_SRC 
+  (custom-set-variables
+   '(initial-frame-alist (quote ((fullscreen . maximized)))))
+#+END_SRC
 
-** prescient
-
-=prescient= sorts and filters candidate lists for ivy/counsel
+** Visually highlight the selected buffer
 
 #+BEGIN_SRC emacs-lisp
-  (use-package prescient)
-  (use-package ivy-prescient
+  (use-package dimmer
+    :custom
+    (dimmer-fraction 0.4)
+    (dimmer-exclusion-regexp-list
+           '(".*Minibuf.*"
+             ".*which-key.*"
+             ".*NeoTree.*"
+             ".*Messages.*"
+             ".*Async.*"
+             ".*Warnings.*"
+             ".*LV.*"
+             ".*Ilist.*"))
     :config
-    (ivy-prescient-mode t))
+    (dimmer-configure-which-key)
+    (dimmer-mode t))
 #+END_SRC
 
-** smex
-
-#+BEGIN_SRC emacs-lisp
-  (use-package smex
-            :ensure t)
-#+END_SRC
-
-** swiper
-
-=ivy= enhanced version of isearch
-
-#+BEGIN_SRC emacs-lisp
-  (use-package swiper
-    :bind (("C-s" . counsel-grep-or-swiper)))
-#+END_SRC
-
-** hydra
-
-*** present menu for =ivy= commands
-
-#+BEGIN_SRC emacs-lisp
-  (use-package ivy-hydra)
-#+END_SRC
-
-*** =major-mode-hydra= binds a single key to open a context sensitive hydra based on current major mode. Hydras can be defined in =use-package= definitions via the =:mode-hydra= integration
-
-#+BEGIN_SRC emacs-lisp
-  (use-package major-mode-hydra
-    :bind
-    ("C-M-SPC" . major-mode-hydra)
-    :config
-    (major-mode-hydra-define org-mode
-      ()
-      ("Tools"
-       (("l" org-lint "lint")))))
-#+END_SRC
-
-
-* Keybindings
-
-** Control Keybinds
-
-*** Swap “C-t” and “C-x”
-
-#+BEGIN_SRC emacs-lisp
-  (keyboard-translate ?\C-t ?\C-x)
-  (keyboard-translate ?\C-x ?\C-t)
-#+END_SRC
-
-
-* Keychords
-
-** Use key-chord
-
-#+BEGIN_SRC emacs-lisp
-  (use-package key-chord
-    :ensure t
-    :config
-    (key-chord-mode 1))
-#+END_SRC
 
 
 * Window
+
+** Follow Splits
+
+*** Vertical Splits
+
+#+BEGIN_SRC emacs-lisp
+  (defun split-and-follow-horizontally ()
+    (interactive)
+    (split-window-below)
+    (balance-windows)
+    (other-window 1))
+  (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
+#+END_SRC
+
+*** Horizontal Splits
+
+#+BEGIN_SRC emacs-lisp
+  (defun split-and-follow-vertically ()
+    (interactive)
+    (split-window-right)
+    (balance-windows)
+    (other-window 1))
+  (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
+#+END_SRC
 
 ** ace window
 
@@ -410,68 +305,58 @@ counsel enhances =ivy= versions of emacs commands
   (add-to-list 'golden-ratio-extra-commands 'ace-window)
 #+END_SRC
 
-** Follow Splits
 
+* Security
 
-*** Vertical Splits
-
-#+BEGIN_SRC emacs-lisp
-  (defun split-and-follow-horizontally ()
-    (interactive)
-    (split-window-below)
-    (balance-windows)
-    (other-window 1))
-  (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
-#+END_SRC
-
-*** Horizontal Splits
+** TLS
 
 #+BEGIN_SRC emacs-lisp
-  (defun split-and-follow-vertically ()
-    (interactive)
-    (split-window-right)
-    (balance-windows)
-    (other-window 1))
-  (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
+  (setq gnutls-verify-error t
+	tls-checktrust t)
 #+END_SRC
 
 
-* Org Mode Settings
+* Terminal
 
-** Common
+ Set Default Terminal
 
 #+BEGIN_SRC emacs-lisp
-  (setq org-ellipsis " ")
-  (setq org-src-fontify-natively t)
-  (setq org-src-tab-acts-natively t)
-  (setq org-confirm-babel-evaluate nil)
-  (setq org-export-with-smart-quotes t)
-  (setq org-src-window-setup 'current-window)
-  (add-hook 'org-mode-hook 'org-indent-mode)
+  (defvar rj/terminal-shell "/bin/bash")
+
+  (defadvice ansi-term (before force-bash)
+    (interactive (list rj/terminal-shell)))
+
+  (ad-activate 'ansi-term)
 #+END_SRC
 
-** Line Wrapping
+Keymap for Launching Terminal
 
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'org-mode-hook
-	      '(lambda ()
-		 (visual-line-mode 1)))
+  (global-set-key (kbd "<s-return>") 'ansi-term)
 #+END_SRC
 
-** Org Bullets
+
+* Keybindings
+
+** Control Keybinds
+
+*** Swap “C-t” and “C-x”
 
 #+BEGIN_SRC emacs-lisp
-  (use-package org-bullets
+  (keyboard-translate ?\C-t ?\C-x)
+  (keyboard-translate ?\C-x ?\C-t)
+#+END_SRC
+
+
+* Keychords
+
+** Use key-chord
+
+#+BEGIN_SRC emacs-lisp
+  (use-package key-chord
     :ensure t
     :config
-      (add-hook 'org-mode-hook (lambda () (org-bullets-mode))))
-#+END_SRC
-
-** Templatize emacs-lisp
-
-#+BEGIN_SRC emacs-lisp
-  (add-to-list 'org-structure-template-alist
-		 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
+    (key-chord-mode 1))
 #+END_SRC
 
 
@@ -599,6 +484,454 @@ Mapping
 #+END_SRC
 
 
+* Parentheses
+
+** Show Parentheses
+
+#+BEGIN_SRC emacs-lisp
+  (show-paren-mode 1)
+#+END_SRC
+
+
+
+* Modeline
+
+** Spaceline
+
+Enable spaceline
+
+#+BEGIN_SRC emacs-lisp
+  (use-package spaceline
+    :ensure t
+    :config
+    (require 'spaceline-config)
+      (setq spaceline-buffer-encoding-abbrev-p nil)
+      (setq spaceline-line-column-p nil)
+      (setq spaceline-line-p nil)
+      (setq powerline-default-separator (quote arrow))
+      (spaceline-spacemacs-theme))
+#+END_SRC
+
+** No Separator
+
+#+BEGIN_SRC emacs-lisp
+  (setq powerline-default-separator nil)
+#+END_SRC
+
+** Cursor Position
+
+Show the current line and column for your cursor
+
+#+BEGIN_SRC emacs-lisp
+  (setq line-number-mode t)
+  (setq column-number-mode t)
+#+END_SRC
+
+** Clock
+
+*** Time format
+
+#+BEGIN_SRC emacs-lisp
+  (setq display-time-24hr-format nil)
+  (setq display-time-format "%H:%M - %d %B %Y")
+#+END_SRC
+
+*** Enabling the mode
+
+Turn on the clock globally
+
+#+BEGIN_SRC emacs-lisp
+  (display-time-mode 1)
+#+END_SRC
+
+** Battery Indicator
+
+#+BEGIN_SRC emacs-lisp
+  (use-package fancy-battery
+    :ensure t
+    :config
+      (setq fancy-battery-show-percentage t)
+      (setq battery-update-interval 15)
+      (if window-system
+        (fancy-battery-mode)
+        (display-battery-mode)))
+#+END_SRC
+
+** System monitor
+
+ Toggle symon on and off with =Super + t=.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package symon
+    :ensure t
+    :bind
+    ("s-t" . symon-mode))
+#+END_SRC
+
+
+* Search/Navigation
+
+** avy
+
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :ensure t
+    :bind
+      ("M-s" . avy-goto-char))
+#+END_SRC
+
+** anzu
+
+#+BEGIN_SRC emacs-lisp
+  (use-package anzu
+    :init
+    (global-anzu-mode +1)
+    (anzu-mode +1)
+    :diminish anzu-mode)
+#+END_SRC
+
+** ivy
+
+*** install
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy
+    :config
+    (ivy-mode t))
+#+END_SRC
+
+*** don't start filters with =^=
+
+#+BEGIN_SRC emacs-lisp
+  (setq ivy-initial-inputs-alist nil)
+#+END_SRC
+
+** counsel
+
+counsel enhances =ivy= versions of emacs commands
+
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel
+    :bind (("M-x" . counsel-M-x)))
+#+END_SRC 
+
+** prescient
+
+=prescient= sorts and filters candidate lists for ivy/counsel
+
+#+BEGIN_SRC emacs-lisp
+  (use-package prescient)
+  (use-package ivy-prescient
+    :config
+    (ivy-prescient-mode t))
+#+END_SRC
+
+** smex
+
+#+BEGIN_SRC emacs-lisp
+  (use-package smex
+            :ensure t)
+#+END_SRC
+
+** swiper
+
+=ivy= enhanced version of isearch
+
+#+BEGIN_SRC emacs-lisp
+  (use-package swiper
+    :bind (("C-s" . counsel-grep-or-swiper)))
+#+END_SRC
+
+** hydra
+#+BEGIN_SRC emacs-lisp
+  (use-package hydra)
+
+  (use-package use-package-hydra
+    :ensure t
+    :after hydra)
+#+END_SRC
+
+*** present menu for =ivy= commands
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy-hydra)
+#+END_SRC
+
+*** =major-mode-hydra= binds a single key to open a context sensitive hydra based on current major mode. Hydras can be defined in =use-package= definitions via the =:mode-hydra= integration
+
+#+BEGIN_SRC emacs-lisp
+  (use-package major-mode-hydra
+    :bind
+    ("C-M-SPC" . major-mode-hydra)
+    :config
+    (major-mode-hydra-define org-mode
+      ()
+      ("Tools"
+       (("l" org-lint "lint")))))
+#+END_SRC
+
+
+* Editing
+
+** hungry delete
+
+#+BEGIN_SRC emacs-lisp
+  (use-package hungry-delete
+    :ensure t
+    :diminish hungry-delete-mode
+    :init
+    (eval-when-compile
+      ;; Silence missing function warnings
+      (declare-function global-hungry-delete-mode "hungry-delete.el"))
+    :config
+    (global-hungry-delete-mode t))
+#+END_SRC
+
+** iedit
+
+#+BEGIN_SRC emacs-lisp
+  (use-package iedit
+    :ensure t
+    :commands (iedit-mode)
+    :bind* (("C-;" . iedit-mode)))
+#+END_SRC
+
+** whitespace
+
+#+BEGIN_SRC emacs-lisp
+  (use-package whitespace
+    :ensure t
+    :diminish global-whitespace-mode
+    :init
+    (eval-when-compile
+        ;; Silence missing function warnings
+        (declare-function global-whitespace-mode "whitespace.el"))
+    :config
+    (setq whitespace-style '(lines-tail trailing tabs tab-mark))
+    ;; Turn on whitespace mode globally.
+    (global-whitespace-mode t))
+#+END_SRC
+
+** Line Numbers in Programming
+
+Relative line numbering in programming mode
+
+#+BEGIN_SRC emacs-lisp
+  (use-package linum-relative
+    :ensure t
+    :diminish linum-relative-mode
+    :config
+      (setq linum-relative-current-symbol "")
+      (add-hook 'prog-mode-hook 'linum-relative-mode))
+#+END_SRC
+
+** Highlight Current Line
+
+#+BEGIN_SRC emacs-lisp
+  (when window-system (add-hook 'prog-mode-hook 'hl-line-mode))
+#+END_SRC
+
+** Parentheses
+
+*** Highlight Parentheses
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :config
+    (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
+#+END_SRC
+
+*** Expand Parentheses
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'prog-mode-hook 'electric-pair-mode)
+#+END_SRC
+
+** Color Strings
+
+*** Highlight Strings Representing Colors
+
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-mode
+    :config
+    (setq rainbow-x-colors nil)
+    (add-hook 'prog-mode-hook 'rainbow-mode))
+#+END_SRC
+
+** highlight todo, fixme, etc
+
+#+BEGIN_SRC emacs-lisp
+  (use-package fic-mode
+    :diminish fic-mode
+    :commands turn-on-fic-mode
+    :config (add-hook 'prog-mode-hook 'turn-on-fic-mode))
+#+END_SRC
+
+
+* Programming Settings
+
+** flycheck
+
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    :ensure t
+    :diminish flycheck-mode
+    :defer t
+    :init
+    (eval-when-compile
+      ;; Silence missing function warnings
+      (declare-function global-flycheck-mode "flycheck.el"))
+    :config
+    ;; Turn flycheck on everywhere
+    (global-flycheck-mode t)
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
+    ;; There are issues with company mode and flycheck in terminal mode.
+    ;; This is outlined at:
+    ;; https://github.com/abingham/emacs-ycmd
+    (when (not (display-graphic-p))
+      (setq flycheck-indication-mode nil))
+    )
+
+  (use-package flycheck-pyflakes
+    :ensure t
+    :after python)
+#+END_SRC
+
+** company
+
+*** install
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :commands (global-company-mode company-mode)
+    :diminish company-mode
+    :custom
+    ;; no delay no autocomplete
+    (company-idle-delay 0)
+    (company-minimum-prefix-length 2)
+    (company-tooltip-limit 20)
+
+    :preface
+    ;; enable yasnippet everywhere
+    (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
+    (defun company-mode/backend-with-yas (backend)
+      (if (or
+           (not company-mode/enable-yas)
+           (and (listp backend) (member 'company-yasnippet backend)))
+          backend
+        (append (if (consp backend) backend (list backend))
+                '(:with company-yasnippet))))
+
+    :init (global-company-mode t)
+    :config
+    ;; remove unused backends
+    (delete 'company-semantic company-backends)
+    (delete 'company-eclim company-backends)
+    (delete 'company-xcode company-backends)
+    (delete 'company-clang company-backends)
+    (delete 'company-bbdb company-backends)
+    (delete 'company-oddmuse company-backends))
+#+END_SRC
+
+*** company-box
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company-box
+    :ensure t
+    :hook (company-mode . company-box-mode))
+#+END_SRC
+
+** yasnippet
+
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :ensure t
+    :diminish yas-minor-mode
+    :commands (yas-reload-all)
+    :init
+    (eval-when-compile
+      ;; Silence missing function warnings
+      (declare-function yas-global-mode "yasnippet.el"))
+    :defer 5
+    :config
+    (yas-global-mode t)
+    (yas-reload-all)
+    ;; Add snippet support to lsp mode
+    (setq lsp-enable-snippet t)
+    (setq company-lsp-enable-snippet t))
+#+END_SRC
+
+** yasnippet-snippets
+
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet-snippets
+    :ensure t
+    :after yasnippet
+    :config
+    (yas-reload-all))
+#+END_SRC
+
+** company statistics
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company-statistics
+    :after company
+    :commands company-statistics-mode
+    :init (company-statistics-mode t))
+#+END_SRC
+
+** flyspell
+
+#+BEGIN_SRC emacs-lisp
+  (use-package flyspell
+    :ensure t
+    :diminish flyspell-mode
+    :hook ((text-mode . flyspell-mode)
+           (prog-mode . flyspell-prog-mode)
+           (org-mode . flyspell-mode))
+    :init
+    (eval-when-compile
+      ;; Silence missing function warnings
+      (declare-function flyspell-goto-next-error "flyspell.el")
+      (declare-function flyspell-mode "flyspell.el")
+      (declare-function flyspell-prog-mode "flyspell.el"))
+    (setq flyspell-issue-welcome-flag nil)
+    (use-package flyspell-correct
+      :ensure t
+      :diminish flyspell-correct-mode
+      :after flyspell)
+    :config
+    (defun flyspell-check-next-highlighted-word ()
+      "Custom function to spell check next highlighted word."
+      (interactive)
+      (flyspell-goto-next-error)
+      (ispell-word))
+
+    (global-set-key (kbd "<f7>") 'flyspell-buffer)
+    (global-set-key (kbd "<f8>") 'flyspell-correct-previous)
+    (global-set-key (kbd "<f9>") 'flyspell-correct-next))
+
+
+  (use-package flyspell-correct-ivy
+    :ensure t
+    :after flyspell)
+#+END_SRC
+
+** bazel
+
+#+BEGIN_SRC emacs-lisp
+  (if (not (file-directory-p "~/.emacs.d/plugins/bazel/"))
+      (make-directory "~/.emacs.d/plugins/bazel/"))
+  (if (not (file-exists-p "~/.emacs.d/plugins/bazel/bazel-mode.el"))
+      (url-copy-file
+       "https://raw.githubusercontent.com/codesuki/bazel-mode/master/bazel-mode.el"
+       "~/.emacs.d/plugins/bazel/bazel-mode.el"))
+  (if (file-exists-p "~/.emacs.d/plugins/bazel/bazel-mode.el")
+      (use-package bazel-mode
+        :mode ("BUILD" "\\.bazel\\'" "\\.bzl'" "WORKSPACE\\'")))
+#+END_SRC
+
+
 * Project Management
 
 ** Git
@@ -679,341 +1012,6 @@ Mapping
 #+END_SRC
 
 
-* Navigation 
-
-** avy
-
-#+BEGIN_SRC emacs-lisp
-  (use-package avy
-    :ensure t
-    :bind
-      ("M-s" . avy-goto-char))
-#+END_SRC
-
-** anzu
-
-#+BEGIN_SRC emacs-lisp
-  (use-package anzu
-    :init
-    (global-anzu-mode +1)
-    (anzu-mode +1)
-    :diminish anzu-mode)
-#+END_SRC
-
-
-* Parentheses
-
-** Show Parentheses
-
-#+BEGIN_SRC emacs-lisp
-  (show-paren-mode 1)
-#+END_SRC
-
-
-* Modeline
-
-** Spaceline
-
-Enable spaceline
-
-#+BEGIN_SRC emacs-lisp
-  (use-package spaceline
-    :ensure t
-    :config
-    (require 'spaceline-config)
-      (setq spaceline-buffer-encoding-abbrev-p nil)
-      (setq spaceline-line-column-p nil)
-      (setq spaceline-line-p nil)
-      (setq powerline-default-separator (quote arrow))
-      (spaceline-spacemacs-theme))
-#+END_SRC
-
-** No Separator
-
-#+BEGIN_SRC emacs-lisp
-  (setq powerline-default-separator nil)
-#+END_SRC
-
-** Cursor Position
-
-Show the current line and column for your cursor
-
-#+BEGIN_SRC emacs-lisp
-  (setq line-number-mode t)
-  (setq column-number-mode t)
-#+END_SRC
-
-** Clock
-
-*** Time format
-
-#+BEGIN_SRC emacs-lisp
-  (setq display-time-24hr-format nil)
-  (setq display-time-format "%H:%M - %d %B %Y")
-#+END_SRC
-
-*** Enabling the mode
-
-Turn on the clock globally
-
-#+BEGIN_SRC emacs-lisp
-  (display-time-mode 1)
-#+END_SRC
-
-** Battery Indicator 
-
-#+BEGIN_SRC emacs-lisp
-  (use-package fancy-battery
-    :ensure t
-    :config
-      (setq fancy-battery-show-percentage t)
-      (setq battery-update-interval 15)
-      (if window-system
-        (fancy-battery-mode)
-        (display-battery-mode)))
-#+END_SRC
-
-** System monitor
-
- Toggle symon on and off with =Super + t=.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package symon
-    :ensure t
-    :bind
-    ("s-t" . symon-mode))
-#+END_SRC
-
-
-* Editing & Programming Settings
-** Line Numbers in Programming
-
-Relative line numbering in programming mode
-
-#+BEGIN_SRC emacs-lisp
-  (use-package linum-relative
-    :ensure t
-    :diminish linum-relative-mode
-    :config
-      (setq linum-relative-current-symbol "")
-      (add-hook 'prog-mode-hook 'linum-relative-mode))
-#+END_SRC
-
-** Highlight Current Line
-
-#+BEGIN_SRC emacs-lisp
-  (when window-system (add-hook 'prog-mode-hook 'hl-line-mode))
-#+END_SRC
-
-** Parentheses
-
-*** Highlight Parentheses
-
-#+BEGIN_SRC emacs-lisp
-  (use-package rainbow-delimiters
-    :config
-    (add-hook 'prog-mode-hook 'rainbow-delimiters-mode))
-#+END_SRC
-
-*** Expand Parentheses
-
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'prog-mode-hook 'electric-pair-mode)
-#+END_SRC
-
-** Color Strings
-
-*** Highlight Strings Representing Colors
-
-#+BEGIN_SRC emacs-lisp
-  (use-package rainbow-mode
-    :config
-    (setq rainbow-x-colors nil)
-    (add-hook 'prog-mode-hook 'rainbow-mode))
-#+END_SRC
-
-** flycheck
-
-#+BEGIN_SRC emacs-lisp
-  (use-package flycheck
-    :ensure t
-    :diminish flycheck-mode
-    :config
-    (add-hook 'after-init-hook 'global-flycheck-mode)
-    (setq flycheck-check-syntax-automatically '(save mode-enabled)))
-
-  (add-hook 'c++-mode-hook
-            (lambda () (setq flycheck-clang-language-standard "c++11")))
-#+END_SRC
-
-** yasnippet
-
-#+BEGIN_SRC emacs-lisp
-  (use-package yasnippet
-    :ensure t
-    :diminish yas-minor-mode
-    :init (yas-global-mode t))
-#+END_SRC
-
-** yasnippet-snippets
-
-#+BEGIN_SRC emacs-lisp
-  (use-package yasnippet-snippets
-    :ensure t)
-
-  (yas-reload-all)
-
-  (yas-global-mode 1)
-#+END_SRC
-
-** company
-
-*** install
-
-#+BEGIN_SRC emacs-lisp
-  (use-package company
-    :commands (global-company-mode company-mode)
-    :diminish company-mode
-    :custom
-    ;; no delay no autocomplete
-    (company-idle-delay 0)
-    (company-minimum-prefix-length 2)
-    (company-tooltip-limit 20)
-
-    :preface
-    ;; enable yasnippet everywhere
-    (defvar company-mode/enable-yas t "Enable yasnippet for all backends.")
-    (defun company-mode/backend-with-yas (backend)
-      (if (or
-           (not company-mode/enable-yas)
-           (and (listp backend) (member 'company-yasnippet backend)))
-          backend
-        (append (if (consp backend) backend (list backend))
-                '(:with company-yasnippet))))
-
-    :init (global-company-mode t)
-    :config
-    ;; remove unused backends
-    (delete 'company-semantic company-backends)
-    (delete 'company-eclim company-backends)
-    (delete 'company-xcode company-backends)
-    (delete 'company-clang company-backends)
-    (delete 'company-bbdb company-backends)
-    (delete 'company-oddmuse company-backends))
-#+END_SRC
-
-*** company-box
-
-#+BEGIN_SRC emacs-lisp
-  (use-package company-box
-    :ensure t
-    :hook (company-mode . company-box-mode))
-#+END_SRC
-
-** company statistics
-
-#+BEGIN_SRC emacs-lisp
-  (use-package company-statistics
-    :after company
-    :commands company-statistics-mode
-    :init (company-statistics-mode t))
-#+END_SRC
-
-** iedit
-
-#+BEGIN_SRC emacs-lisp
-  (use-package iedit
-    :ensure t
-    :commands (iedit-mode)
-    :bind* (("C-c ;" . iedit-mode)))
-#+END_SRC
-
-** whitespace
-
-#+BEGIN_SRC emacs-lisp
-  (use-package whitespace
-    :ensure t
-    :diminish global-whitespace-mode
-    :init
-    (eval-when-compile
-        ;; Silence missing function warnings
-        (declare-function global-whitespace-mode "whitespace.el"))
-    :config
-    (setq whitespace-style '(lines-tail trailing tabs tab-mark))
-    ;; Turn on whitespace mode globally.
-    (global-whitespace-mode t))
-#+END_SRC
-
-** hungry delete
-
-#+BEGIN_SRC emacs-lisp
-  (use-package hungry-delete
-    :ensure t
-    :diminish hungry-delete-mode
-    :init
-    (eval-when-compile
-      ;; Silence missing function warnings
-      (declare-function global-hungry-delete-mode "hungry-delete.el"))
-    :config
-    (global-hungry-delete-mode t))
-#+END_SRC
-
-** flyspell
-
-#+BEGIN_SRC emacs-lisp
-  (use-package flyspell
-    :ensure t
-    :diminish flyspell-mode
-    :hook ((text-mode . flyspell-mode)
-           (prog-mode . flyspell-prog-mode)
-           (org-mode . flyspell-mode))
-    :init
-    (eval-when-compile
-      ;; Silence missing function warnings
-      (declare-function flyspell-goto-next-error "flyspell.el")
-      (declare-function flyspell-mode "flyspell.el")
-      (declare-function flyspell-prog-mode "flyspell.el"))
-    (setq flyspell-issue-welcome-flag nil)
-    :config
-    (defun flyspell-check-next-highlighted-word ()
-      "Custom function to spell check next highlighted word."
-      (interactive)
-      (flyspell-goto-next-error)
-      (ispell-word))
-
-    (global-set-key (kbd "<f7>") 'flyspell-buffer)
-    (global-set-key (kbd "<f8>") 'flyspell-correct-previous)
-    (global-set-key (kbd "<f9>") 'flyspell-correct-next))
-
-  (use-package flyspell-correct-ivy
-    :ensure t
-    :after flyspell)
-#+END_SRC
-
-** bazel
-
-#+BEGIN_SRC emacs-lisp
-  (if (not (file-directory-p "~/.emacs.d/plugins/bazel/"))
-      (make-directory "~/.emacs.d/plugins/bazel/"))
-  (if (not (file-exists-p "~/.emacs.d/plugins/bazel/bazel-mode.el"))
-      (url-copy-file
-       "https://raw.githubusercontent.com/codesuki/bazel-mode/master/bazel-mode.el"
-       "~/.emacs.d/plugins/bazel/bazel-mode.el"))
-  (if (file-exists-p "~/.emacs.d/plugins/bazel/bazel-mode.el")
-      (use-package bazel-mode
-        :mode ("BUILD" "\\.bazel\\'" "\\.bzl'" "WORKSPACE\\'")))
-#+END_SRC
-
-** highlight todo, fixme, etc
-
-#+BEGIN_SRC emacs-lisp
-  (use-package fic-mode
-    :diminish fic-mode
-    :commands turn-on-fic-mode
-    :config (add-hook 'prog-mode-hook 'turn-on-fic-mode))
-#+END_SRC
-
-
 * Languages
 
 ** C / C++
@@ -1066,7 +1064,7 @@ uses a clang-format file stored in /plugins/cpp-plugins
 
 *** flycheck
 
-**** flycheck mode 
+**** flycheck mode
 
 #+BEGIN_SRC emacs-lisp
   (add-hook 'c-mode-hook 'flycheck-mode)
@@ -1098,7 +1096,6 @@ uses a clang-format file stored in /plugins/cpp-plugins
 
 *** CMake mode
 
-
 #+BEGIN_SRC emacs-lisp
   (use-package cmake-ide)
 #+END_SRC
@@ -1116,54 +1113,13 @@ uses a clang-format file stored in /plugins/cpp-plugins
            auto-mode-alist)))
 #+END_SRC
 
-*** ycmd
+*** eglot
 
 #+BEGIN_SRC emacs-lisp
-  (defvar rj/ycmd-server-command '("python3" "~/software/ycmd/ycmd"))
-  (defvar rj/ycmd-extra-conf-whitelist '("~/.emacs.d/plugins/ycmd/.ycm_extra_conf.py"))
-  (defvar rj/ycmd-global-config (expand-file-name "~/.emacs.d/plugins/ycmd/.ycm_extra_conf.py"))
-
-  (use-package ycmd
-    :ensure t
-    :init (add-hook 'c++-mode-hook #'ycmd-mode)
-    :diminish ycmd-mode
-    :config
-    (progn
-    (set-variable 'ycmd-server-command rj/ycmd-server-command)
-    (set-variable 'ycmd-global-config rj/ycmd-global-config)
-
-    (set-variable 'ycmd-extra-conf-whitelist rj/ycmd-extra-conf-whitelist)
-
-    (use-package company-ycmd
-      :ensure t
-      :init
-      (eval-when-compile
-        ;; Silence missing function warnings
-        (declare-function company-ycmd-setup "company-ycmd.el"))
-      :config
-      (company-ycmd-setup))
-
-    (use-package flycheck-ycmd
-      :ensure t
-      :init
-      (add-hook 'c-mode-common-hook 'flycheck-ycmd-setup))
-
-    ;; Add displaying the function arguments in mini buffer using El Doc
-    (require 'ycmd-eldoc)
-    (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup)))
-#+END_SRC
-
-*** company ycmd
-
-#+BEGIN_SRC emacs-lisp
-  (use-package company-ycmd
-    :ensure t
-    :init
-    (eval-when-compile
-      ;; Silence missing function warnings
-      (declare-function company-ycmd-setup "company-ycmd.el"))
-    :config
-    (company-ycmd-setup))
+  (use-package eglot :ensure t)
+  (add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd-10"))
+  (add-hook 'c-mode-hook 'eglot-ensure)
+  (add-hook 'c++-mode-hook 'eglot-ensure)
 #+END_SRC
 
 ** json
@@ -1251,6 +1207,46 @@ before using, =pip install jedi autopep8 flake8 ipython importmagic yapf=
 #+END_SRC
 
 
+
+* Org Mode Settings
+
+** Common
+
+#+BEGIN_SRC emacs-lisp
+  (setq org-ellipsis " ")
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-export-with-smart-quotes t)
+  (setq org-src-window-setup 'current-window)
+  (add-hook 'org-mode-hook 'org-indent-mode)
+#+END_SRC
+
+** Line Wrapping
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'org-mode-hook
+	      '(lambda ()
+		 (visual-line-mode 1)))
+#+END_SRC
+
+** Org Bullets
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-bullets
+    :ensure t
+    :config
+      (add-hook 'org-mode-hook (lambda () (org-bullets-mode))))
+#+END_SRC
+
+** Templatize emacs-lisp
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'org-structure-template-alist
+		 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC"))
+#+END_SRC
+
+
 * Apps
 
 ** Stack Overflow
@@ -1322,4 +1318,3 @@ Various elements in this config have been inspired or used from the below resour
 - https://jamiecollinson.com/blog/my-emacs-config/
 - https://pages.sachachua.com/.emacs.d/Sacha.html
 - https://github.com/nilsdeppe/MyEnvironment
-  
